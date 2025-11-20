@@ -18,15 +18,24 @@ El sistema usa **JSDOM** (DOM simulation en Node.js) para:
 
 ## 🔧 Configuración paso a paso
 
-### 1. Crear GitHub Secret
+### 1. Crear GitHub Secrets
 
 1. Ve a tu repositorio: https://github.com/margaretosoftware/julemenyen
 2. Click en **Settings** (⚙️)
 3. En el menú lateral: **Secrets and variables** → **Actions**
-4. Click en **New repository secret**
-5. Nombre: `WP_APP_PASSWORD`
-6. Valor: `hc8n ogxb 6SVB axZ0 C68J c3FY`
-7. Click **Add secret**
+4. Crea estos dos secrets:
+
+**Secret 1: WP_USERNAME**
+- Click en **New repository secret**
+- Nombre: `WP_USERNAME`
+- Valor: Tu usuario de WordPress (probablemente `admin`)
+- Click **Add secret**
+
+**Secret 2: WP_PASSWORD**
+- Click en **New repository secret**
+- Nombre: `WP_PASSWORD`
+- Valor: Tu contraseña de WordPress (la que usas para login normal)
+- Click **Add secret**
 
 ### 2. Crear el workflow de GitHub Actions
 
@@ -88,11 +97,15 @@ schedule:
 # Instala dependencias
 npm install
 
-# Configura el Application Password
-export WP_APP_PASSWORD='hc8n ogxb 6SVB axZ0 C68J c3FY'
+# Configura usuario y contraseña de WordPress
+export WP_USERNAME='admin'
+export WP_PASSWORD='tu_contraseña_wordpress'
 
 # Ejecuta el script
 node update_wordpress.js
+
+# O en una sola línea:
+WP_USERNAME='admin' WP_PASSWORD='tu_contraseña' node update_wordpress.js
 ```
 
 Output esperado:
@@ -141,24 +154,17 @@ graph TD
 
 ## 🛠️ Troubleshooting
 
-### Error: "WP_APP_PASSWORD not set"
-Asegúrate de que el secret está correctamente configurado en GitHub Settings → Secrets.
+### Error: "WP_PASSWORD not set"
+Asegúrate de que los secrets `WP_USERNAME` y `WP_PASSWORD` están correctamente configurados en GitHub Settings → Secrets and variables → Actions.
 
 ### Error: "401 Unauthorized" o "rest_cannot_edit"
-**Causa**: El Application Password actual NO tiene permisos de escritura (solo lectura).
+**Causa**: Credenciales incorrectas o usuario sin permisos de administrador.
 
-**Solución**: Genera un NUEVO Application Password con permisos completos:
-1. Inicia sesión en WordPress como admin
-2. Ve a: **Users → Profile** (o **Usuarios → Tu perfil**)
-3. Scroll down hasta "Application Passwords"
-4. **IMPORTANTE**: Asegúrate de estar logueado como usuario con rol **Administrator**
-5. En "New Application Password Name" escribe: `GitHub Actions Updater`
-6. Click **Add New Application Password**
-7. WordPress mostrará una contraseña como: `xxxx xxxx xxxx xxxx xxxx xxxx`
-8. Copia esta contraseña (CON espacios o sin espacios, ambos funcionan)
-9. Ve a tu repositorio → Settings → Secrets and variables → Actions
-10. **Edita** el secret `WP_APP_PASSWORD` con la nueva contraseña
-11. Ejecuta el workflow manualmente para probar
+**Solución**:
+1. Verifica que tu usuario tiene rol **Administrator** en WordPress
+2. Asegúrate de que la contraseña sea correcta (prueba hacer login en WordPress manualmente)
+3. Si cambiaste la contraseña, actualiza el secret `WP_PASSWORD` en GitHub
+4. Verifica que el username sea correcto en el secret `WP_USERNAME`
 
 ### Error: "404 Not Found"
 Verifica que los Page IDs (8498 y 8500) son correctos en `update_wordpress.js`.

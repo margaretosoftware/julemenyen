@@ -12,9 +12,8 @@ const fs = require('fs');
 
 // WordPress configuration
 const WP_URL = 'https://julemarkedet-trondheim.no';
-const WP_USERNAME = 'admin';
-// Remove spaces from Application Password if present
-const WP_APP_PASSWORD = (process.env.WP_APP_PASSWORD || '').replace(/\s+/g, '');
+const WP_USERNAME = process.env.WP_USERNAME || 'admin';
+const WP_PASSWORD = process.env.WP_PASSWORD || '';
 const PAGE_ID_NO = 8498;
 const PAGE_ID_EN = 8500;
 
@@ -23,7 +22,7 @@ const PAGE_ID_EN = 8500;
  */
 function wpRequest(endpoint, method = 'GET', data = null) {
   return new Promise((resolve, reject) => {
-    const auth = Buffer.from(`${WP_USERNAME}:${WP_APP_PASSWORD}`).toString('base64');
+    const auth = Buffer.from(`${WP_USERNAME}:${WP_PASSWORD}`).toString('base64');
 
     const options = {
       hostname: new URL(WP_URL).hostname,
@@ -120,8 +119,8 @@ async function main() {
   console.log('🎄 Julemenyen WordPress Auto-Updater');
   console.log('='.repeat(60));
 
-  if (!WP_APP_PASSWORD) {
-    console.error('❌ ERROR: WP_APP_PASSWORD environment variable not set');
+  if (!WP_PASSWORD) {
+    console.error('❌ ERROR: WP_PASSWORD environment variable not set');
     process.exit(1);
   }
 
