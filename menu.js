@@ -217,7 +217,8 @@
           price: formatPrice(row),
           takehome: isTakeHome(row),
           soldout: isSoldOut(row),
-          hasPhoto: hasPhoto(row)
+          hasPhoto: hasPhoto(row),
+          imageUrl: row.image_url || ""
         });
       });
     });
@@ -243,6 +244,7 @@
       var nameEl = card.querySelector(".lavvo-card-name");
       var descEl = card.querySelector(".lavvo-card-desc");
       var priceEl = card.querySelector(".lavvo-card-price");
+      var imgEl = card.querySelector(".lavvo-card-image");
 
       var name = nameEl ? nameEl.textContent.trim() : "";
       var desc = descEl ? descEl.textContent.trim() : "";
@@ -252,6 +254,16 @@
       var soldoutAttr = card.getAttribute("data-soldout") === "true";
       var hasPhotoAttr = card.classList.contains("lavvo-card-hasphoto");
 
+      // Extract image URL from background-image style
+      var imageUrl = "";
+      if (imgEl) {
+        var bgStyle = imgEl.style.backgroundImage;
+        if (bgStyle) {
+          var match = bgStyle.match(/url\(['"]?([^'"]+)['"]?\)/);
+          imageUrl = match ? match[1] : "";
+        }
+      }
+
       arr.push({
         category: cat,
         name: name,
@@ -260,7 +272,8 @@
         price: price,
         takehome: takehomeAttr,
         soldout: soldoutAttr,
-        hasPhoto: hasPhotoAttr
+        hasPhoto: hasPhotoAttr,
+        imageUrl: imageUrl
       });
     });
 
