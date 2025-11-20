@@ -491,11 +491,21 @@
     var grid = modal.querySelector('.lavvo-allergen-grid');
     if (!grid) return;
 
-    // Limpiar grid existente
-    grid.innerHTML = '';
+    // Obtener alérgenos ya existentes (pre-renderizados)
+    var existingAllergens = {};
+    var existingCheckboxes = grid.querySelectorAll('input[type="checkbox"]');
+    existingCheckboxes.forEach(function(cb) {
+      existingAllergens[cb.value] = true;
+    });
 
-    // Generar checkboxes dinámicamente
+    // Solo añadir nuevos alérgenos del CSV que no existan
     allergensList.forEach(function(allergen) {
+      if (existingAllergens[allergen]) {
+        // Ya existe, no hacer nada
+        return;
+      }
+
+      // Crear nuevo checkbox para alérgeno del CSV
       var item = document.createElement('div');
       item.className = 'lavvo-allergen-item';
 
