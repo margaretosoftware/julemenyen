@@ -7,7 +7,8 @@
     "update": "node update_wordpress.js"
   },
   "dependencies": {
-    "jsdom": "^23.0.0"
+    "jsdom": "^23.0.0",
+    "node-fetch": "^2.7.0"
   },
   "engines": {
     "node": ">=18.0.0"

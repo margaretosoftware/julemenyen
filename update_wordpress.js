@@ -6,13 +6,15 @@
  */
 
 const { JSDOM } = require('jsdom');
+const fetch = require('node-fetch');
 const https = require('https');
 const fs = require('fs');
 
 // WordPress configuration
 const WP_URL = 'https://julemarkedet-trondheim.no';
 const WP_USERNAME = 'admin';
-const WP_APP_PASSWORD = process.env.WP_APP_PASSWORD || '';
+// Remove spaces from Application Password if present
+const WP_APP_PASSWORD = (process.env.WP_APP_PASSWORD || '').replace(/\s+/g, '');
 const PAGE_ID_NO = 8498;
 const PAGE_ID_EN = 8500;
 
@@ -64,16 +66,20 @@ async function renderPage(htmlFile) {
   // Read HTML file
   const html = fs.readFileSync(htmlFile, 'utf8');
 
-  // Create JSDOM instance
+  // Create JSDOM instance with fetch polyfill
   const dom = new JSDOM(html, {
     runScripts: 'dangerously',
     resources: 'usable',
-    url: 'file://' + __dirname + '/' + htmlFile
+    url: 'file://' + __dirname + '/' + htmlFile,
+    beforeParse(window) {
+      window.fetch = fetch;
+    }
   });
 
   const { window } = dom;
   global.window = window;
   global.document = window.document;
+  global.fetch = fetch;
 
   // Wait for menu.js to execute
   await new Promise((resolve) => {
@@ -97,7 +103,8 @@ async function updatePage(pageId, content) {
   console.log(`📝 Updating WordPress page ${pageId}...`);
 
   try {
-    await wpRequest(`pages/${pageId}`, 'POST', { content });
+    // Use PUT method for updating existing pages
+    await wpRequest(`pages/${pageId}`, 'PUT', { content });
     console.log(`✅ Updated page ${pageId}`);
   } catch (error) {
     console.error(`❌ Error updating page ${pageId}:`, error.message);
