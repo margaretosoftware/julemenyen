@@ -319,9 +319,9 @@
         if (photo) {
           var imgUrl = row.image_url || PLACEHOLDER_IMG;
           html +=
-            '<div class="lavvo-card-image" style="background-image:url(\'' +
-            imgUrl +
-            "');\"></div>";
+            '<div class="lavvo-card-image" style="background-image:url(' +
+            "'" + imgUrl + "'" +
+            ');"></div>';
         }
 
         html += '<div class="lavvo-card-body">';
