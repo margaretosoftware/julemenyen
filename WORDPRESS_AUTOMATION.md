@@ -144,14 +144,33 @@ graph TD
 ### Error: "WP_APP_PASSWORD not set"
 Asegúrate de que el secret está correctamente configurado en GitHub Settings → Secrets.
 
-### Error: "401 Unauthorized"
-El Application Password puede haber expirado. Genera uno nuevo en WordPress:
-1. WordPress → Users → Profile
-2. Scroll down a "Application Passwords"
-3. Genera uno nuevo y actualiza el secret en GitHub
+### Error: "401 Unauthorized" o "rest_cannot_edit"
+**Causa**: El Application Password actual NO tiene permisos de escritura (solo lectura).
+
+**Solución**: Genera un NUEVO Application Password con permisos completos:
+1. Inicia sesión en WordPress como admin
+2. Ve a: **Users → Profile** (o **Usuarios → Tu perfil**)
+3. Scroll down hasta "Application Passwords"
+4. **IMPORTANTE**: Asegúrate de estar logueado como usuario con rol **Administrator**
+5. En "New Application Password Name" escribe: `GitHub Actions Updater`
+6. Click **Add New Application Password**
+7. WordPress mostrará una contraseña como: `xxxx xxxx xxxx xxxx xxxx xxxx`
+8. Copia esta contraseña (CON espacios o sin espacios, ambos funcionan)
+9. Ve a tu repositorio → Settings → Secrets and variables → Actions
+10. **Edita** el secret `WP_APP_PASSWORD` con la nueva contraseña
+11. Ejecuta el workflow manualmente para probar
 
 ### Error: "404 Not Found"
 Verifica que los Page IDs (8498 y 8500) son correctos en `update_wordpress.js`.
+
+### Error: "fetch is not defined"
+**Causa**: JSDOM no incluye la API `fetch()` por defecto.
+
+**Solución**: Ya está resuelto en la última versión del código. El script ahora usa `node-fetch` como polyfill.
+
+Si el error persiste:
+1. Ejecuta `npm install` para instalar `node-fetch`
+2. Verifica que `package.json` incluya `"node-fetch": "^2.7.0"`
 
 ### JSDOM no renderiza correctamente
 Asegúrate de que los archivos `html-no-local.html` y `html-en-local.html` existen y usan `./menu.js` (no la CDN).
