@@ -1,110 +1,112 @@
 # 🤖 WordPress Automation Setup
 
-Este documento explica cómo configurar la actualización automática de las páginas de WordPress cada 15 minutos.
+Este documento explica cómo configurar la actualización automática de las páginas de WordPress cada hora.
 
-## 📋 Prerequisitos
+## 📋 Cómo funciona
 
-1. **WordPress Application Password** creado
-2. **GitHub repository** configurado
-3. **Acceso a GitHub Secrets** del repositorio
+El sistema usa **JSDOM** (DOM simulation en Node.js) para:
+
+1. Cargar los archivos HTML locales (`html-no-local.html` y `html-en-local.html`)
+2. Ejecutar `menu.js` que descarga el CSV de Google Sheets y renderiza todo
+3. Extraer el HTML final ya renderizado (con datos actualizados)
+4. Subir el contenido actualizado a WordPress **siempre**, sin comparaciones
+
+**Ventaja**:
+- Más ligero que Puppeteer (no requiere Chromium)
+- Reutiliza toda la lógica de renderizado existente en JavaScript
+- Actualiza siempre, asegurando que WordPress tiene la última versión
 
 ## 🔧 Configuración paso a paso
 
 ### 1. Crear GitHub Secret
 
-1. Ve a tu repositorio en GitHub: https://github.com/margaretosoftware/julemenyen
+1. Ve a tu repositorio: https://github.com/margaretosoftware/julemenyen
 2. Click en **Settings** (⚙️)
-3. En el menú lateral, click en **Secrets and variables** → **Actions**
+3. En el menú lateral: **Secrets and variables** → **Actions**
 4. Click en **New repository secret**
-5. Nombre del secret: `WP_APP_PASSWORD`
-6. Valor: `hc8n ogxb 6SVB axZ0 C68J c3FY` (tu Application Password de WordPress)
-7. Click en **Add secret**
+5. Nombre: `WP_APP_PASSWORD`
+6. Valor: `hc8n ogxb 6SVB axZ0 C68J c3FY`
+7. Click **Add secret**
 
-### 2. Push del código al repositorio
+### 2. Crear el workflow de GitHub Actions
+
+El workflow ya está creado en `.github/workflows/update-wordpress.yml`, pero como tu token no tiene permisos para crear workflows, necesitas crearlo manualmente:
+
+1. Ve a tu repositorio en GitHub
+2. Click en **Actions** → **New workflow** → **set up a workflow yourself**
+3. Copia el contenido de `.github/workflows/update-wordpress.yml` del repositorio local
+4. Click **Commit changes**
+
+### 3. Push del código
 
 ```bash
-# Añade todos los archivos nuevos
 git add .
+git commit -m "Add WordPress automation with Puppeteer
 
-# Crea el commit
-git commit -m "Add WordPress automation
-
-- Python script to update WordPress pages
-- GitHub Actions workflow for automatic updates every 15 minutes
-- Documentation for setup
+- Node.js script using Puppeteer to render pages with live data
+- GitHub Actions workflow running every hour
+- Extracts rendered HTML and updates WordPress via REST API
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
 Co-Authored-By: Claude <noreply@anthropic.com>"
 
-# Push al repositorio
 git push
 ```
 
-### 3. Verificar que funciona
+### 4. Probar el workflow
 
-1. Ve a tu repositorio en GitHub
-2. Click en la pestaña **Actions**
-3. Deberías ver el workflow "Update WordPress Menu"
-4. Puedes ejecutarlo manualmente con **Run workflow** para probarlo
+1. Ve a GitHub → Actions
+2. Selecciona "Update WordPress Menu"
+3. Click **Run workflow** para ejecutarlo manualmente
+4. Verifica que se ejecuta sin errores
 
-## 🔄 Cómo funciona
+## 🔄 Frecuencia de actualización
 
-### Flujo de actualización
+El workflow se ejecuta **cada hora** (`cron: '0 * * * *'`).
 
-```mermaid
-graph TD
-    A[GitHub Actions cada 15 min] --> B[Descarga CSV de Google Sheets]
-    B --> C[Descarga HTML-NO y HTML-EN desde GitHub]
-    C --> D[Obtiene contenido actual de WordPress]
-    D --> E{¿Hay cambios?}
-    E -->|Sí| F[Actualiza WordPress via REST API]
-    E -->|No| G[No hace nada]
-    F --> H[✅ Completado]
-    G --> H
+Si quieres cambiar la frecuencia, edita `.github/workflows/update-wordpress.yml`:
+
+```yaml
+schedule:
+  # Cada hora (actual)
+  - cron: '0 * * * *'
+
+  # Cada 30 minutos
+  - cron: '*/30 * * * *'
+
+  # Cada 2 horas
+  - cron: '0 */2 * * *'
+
+  # Cada 6 horas
+  - cron: '0 */6 * * *'
 ```
-
-### Componentes
-
-1. **update_wordpress.py**: Script Python que:
-   - Descarga el CSV de Google Sheets
-   - Compara con el contenido actual de WordPress
-   - Actualiza si detecta cambios
-
-2. **.github/workflows/update-wordpress.yml**: Workflow que:
-   - Se ejecuta cada 15 minutos (`cron: '*/15 * * * *'`)
-   - También se puede ejecutar manualmente
-   - Usa el secret `WP_APP_PASSWORD` para autenticarse
 
 ## 🧪 Probar localmente
 
-Puedes probar el script localmente antes de subirlo:
-
 ```bash
 # Instala dependencias
-pip install requests
+npm install
 
 # Configura el Application Password
 export WP_APP_PASSWORD='hc8n ogxb 6SVB axZ0 C68J c3FY'
 
 # Ejecuta el script
-python update_wordpress.py
+node update_wordpress.js
 ```
 
-Deberías ver output como:
+Output esperado:
 
 ```
 ============================================================
 🎄 Julemenyen WordPress Auto-Updater
 ============================================================
-📊 Fetching CSV from Google Sheets...
-✅ Fetched 15 rows from CSV
 
 ============================================================
 🇳🇴 Processing Norwegian page...
 ============================================================
-🌐 Fetching NO HTML template from GitHub...
-✅ Fetched NO template (25000 chars)
+🌐 Rendering html-no-local.html with Puppeteer...
+✅ Rendered html-no-local.html (25000 chars)
 📄 Fetching WordPress page 8498...
 ✅ Fetched page 8498 (25000 chars)
 ✅ Norwegian page is already up to date
@@ -112,8 +114,8 @@ Deberías ver output como:
 ============================================================
 🇬🇧 Processing English page...
 ============================================================
-🌐 Fetching EN HTML template from GitHub...
-✅ Fetched EN template (25000 chars)
+🌐 Rendering html-en-local.html with Puppeteer...
+✅ Rendered html-en-local.html (25000 chars)
 📄 Fetching WordPress page 8500...
 ✅ Fetched page 8500 (25000 chars)
 ✅ English page is already up to date
@@ -123,72 +125,56 @@ Deberías ver output como:
 ============================================================
 ```
 
-## 📊 Monitoreo
+## 📊 Flujo del sistema
 
-Para ver el estado de las actualizaciones automáticas:
-
-1. Ve a GitHub → Actions
-2. Verás la lista de ejecuciones del workflow
-3. Click en cualquiera para ver los logs detallados
-
-### Notificaciones de fallos
-
-Si un workflow falla, GitHub te enviará un email automáticamente.
+```mermaid
+graph TD
+    A[GitHub Actions cada hora] --> B[Inicia JSDOM]
+    B --> C[Carga html-no-local.html]
+    C --> D[Ejecuta menu.js que descarga CSV]
+    D --> E[menu.js renderiza HTML con datos actualizados]
+    E --> F[Extrae HTML renderizado completo]
+    F --> G[Actualiza WordPress via REST API]
+    G --> H[Repite para html-en-local.html]
+    H --> I[✅ Completado]
+```
 
 ## 🛠️ Troubleshooting
 
 ### Error: "WP_APP_PASSWORD not set"
-
 Asegúrate de que el secret está correctamente configurado en GitHub Settings → Secrets.
 
 ### Error: "401 Unauthorized"
-
-El Application Password puede haber expirado o ser incorrecto. Genera uno nuevo en WordPress:
+El Application Password puede haber expirado. Genera uno nuevo en WordPress:
 1. WordPress → Users → Profile
-2. Scroll down to "Application Passwords"
+2. Scroll down a "Application Passwords"
 3. Genera uno nuevo y actualiza el secret en GitHub
 
 ### Error: "404 Not Found"
+Verifica que los Page IDs (8498 y 8500) son correctos en `update_wordpress.js`.
 
-Verifica que los Page IDs (8498 y 8500) son correctos en `update_wordpress.py`.
+### JSDOM no renderiza correctamente
+Asegúrate de que los archivos `html-no-local.html` y `html-en-local.html` existen y usan `./menu.js` (no la CDN).
 
 ### El workflow no se ejecuta
-
-GitHub Actions puede tener un delay de hasta 5-10 minutos en workflows scheduled. Si quieres forzar la ejecución:
+GitHub Actions puede tener un delay de hasta 5-10 minutos. Para forzar ejecución:
 1. Ve a Actions
 2. Selecciona "Update WordPress Menu"
-3. Click en "Run workflow"
+3. Click "Run workflow"
 
 ## 🔐 Seguridad
 
 - **NUNCA** commitees el Application Password directamente en el código
 - Usa siempre GitHub Secrets para credenciales sensibles
-- El Application Password solo tiene permisos para editar páginas, no acceso completo a WordPress
+- El Application Password solo tiene permisos para editar páginas
 
-## 📝 Modificar la frecuencia
+## 🎉 Resultado final
 
-Para cambiar la frecuencia de las actualizaciones, edita `.github/workflows/update-wordpress.yml`:
+Una vez configurado:
 
-```yaml
-schedule:
-  # Cada 15 minutos
-  - cron: '*/15 * * * *'
+✅ **GitHub Actions se ejecuta cada hora**
+✅ **JSDOM renderiza las páginas con datos actualizados del CSV**
+✅ **WordPress se actualiza automáticamente SIEMPRE (sin comparaciones)**
+✅ **Tu cliente solo edita Google Sheets**
 
-  # Cada 30 minutos
-  - cron: '*/30 * * * *'
-
-  # Cada hora
-  - cron: '0 * * * *'
-
-  # Cada 6 horas
-  - cron: '0 */6 * * *'
-```
-
-## 🎉 ¡Listo!
-
-Una vez configurado, las páginas de WordPress se actualizarán automáticamente cada 15 minutos si hay cambios en:
-- El CSV de Google Sheets
-- Los archivos HTML en GitHub (html-no.html, html-en.html)
-- El archivo JavaScript (menu.js)
-
-No necesitas hacer nada más. Solo edita el Google Sheets y espera máximo 15 minutos para que se actualice en WordPress. ✨
+Los cambios aparecerán en WordPress en máximo 1 hora automáticamente. 🚀

@@ -1,0 +1,15 @@
+{
+  "name": "julemenyen-wordpress-updater",
+  "version": "1.0.0",
+  "description": "WordPress auto-updater for Julemenyen using JSDOM",
+  "main": "update_wordpress.js",
+  "scripts": {
+    "update": "node update_wordpress.js"
+  },
+  "dependencies": {
+    "jsdom": "^23.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
