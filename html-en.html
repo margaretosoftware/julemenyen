@@ -18,6 +18,7 @@
       }
     }
 
+    /* Filters */
     .lavvo-filters {
       display: flex;
       flex-wrap: wrap;
@@ -31,25 +32,34 @@
       align-items: center;
       gap: 8px;
       padding: 10px 18px;
-      border-radius: 2px;
+      border-radius: 4px;
       background: rgba(245, 237, 218, 0.12);
       font-size: 0.9rem;
       color: #f5edda;
       white-space: nowrap;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
     }
 
-    .lavvo-filter-chip select,
-    .lavvo-filter-chip input {
+    .lavvo-filter-chip:hover {
+      background: rgba(245, 237, 218, 0.2);
+    }
+
+    .lavvo-filter-chip select {
       border: none;
       background: transparent;
       font: inherit;
       color: inherit;
       cursor: pointer;
       outline: none;
+      padding-right: 20px;
     }
 
-    .lavvo-filter-chip select {
-      padding-right: 4px;
+    .lavvo-filter-chip input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
     }
 
     .lavvo-filter-chip-row {
@@ -75,13 +85,115 @@
       }
     }
 
+    /* Allergen Modal */
+    .lavvo-allergen-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .lavvo-allergen-modal.active {
+      display: flex;
+    }
+
+    .lavvo-allergen-modal-content {
+      background: #0d4d6d;
+      padding: 32px;
+      border-radius: 8px;
+      max-width: 600px;
+      width: 90%;
+      color: #f5edda;
+      position: relative;
+    }
+
+    .lavvo-allergen-modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-size: 28px;
+      cursor: pointer;
+      color: #f5edda;
+      background: none;
+      border: none;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      line-height: 28px;
+    }
+
+    .lavvo-allergen-modal h3 {
+      margin: 0 0 8px;
+      font-size: 1.4rem;
+    }
+
+    .lavvo-allergen-modal p {
+      margin: 0 0 24px;
+      opacity: 0.9;
+      font-size: 0.9rem;
+    }
+
+    .lavvo-allergen-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 600px) {
+      .lavvo-allergen-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .lavvo-allergen-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lavvo-allergen-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .lavvo-allergen-item label {
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .lavvo-allergen-submit {
+      width: 100%;
+      padding: 12px 24px;
+      background: #d4a574;
+      color: #1a1a1a;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .lavvo-allergen-submit:hover {
+      background: #c49564;
+    }
+
+    /* Categories */
     .lavvo-category {
-      margin-top: 32px;
+      margin-top: 48px;
     }
 
     .lavvo-category-title {
       margin: 0 0 6px;
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
       color: #f5edda;
@@ -89,395 +201,314 @@
 
     .lavvo-category-rule {
       border: 0;
-      border-top: 1px solid rgba(245, 237, 218, 0.6);
-      margin: 0 0 26px;
+      border-top: 1px solid rgba(245, 237, 218, 0.3);
+      margin: 0 0 32px;
     }
 
-    .lavvo-category-subtitle {
-      font-size: 0.9rem;
-      color: #f5edda;
-      margin: -20px 0 16px;
-      opacity: 0.85;
-    }
-
-    .lavvo-grid {
+    /* Photo grid (top) */
+    .lavvo-photo-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 32px;
+      gap: 24px;
+      margin-bottom: 32px;
     }
 
-    @media (max-width: 1100px) {
-      .lavvo-grid {
+    @media (max-width: 900px) {
+      .lavvo-photo-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
 
-    @media (max-width: 720px) {
-      .lavvo-grid {
+    @media (max-width: 600px) {
+      .lavvo-photo-grid {
         grid-template-columns: 1fr;
       }
     }
 
-    .lavvo-card {
+    .lavvo-photo-card {
       position: relative;
       background: #0b3b5a;
       text-align: center;
-      padding-bottom: 18px;
       overflow: hidden;
+      border-radius: 4px;
     }
 
-    .lavvo-card-image {
+    .lavvo-photo-card-image {
       width: 100%;
-      height: 220px;
-      background-image: url("https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=1200&q=80");
+      height: 280px;
       background-size: cover;
       background-position: center;
-      filter: brightness(0.85);
+      position: relative;
     }
 
-    .lavvo-card-body {
-      padding: 18px 18px 12px;
+    /* Allergen badge on photo */
+    .lavvo-allergen-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
-    .lavvo-card.lavvo-card-noimage .lavvo-card-body {
-      padding-top: 18px;
-    }
-
-    .lavvo-card-name {
+    /* SOLD OUT centered on image */
+    .lavvo-photo-card-soldout-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2rem;
       font-weight: 700;
-      font-size: 0.95rem;
-      letter-spacing: 0.08em;
+      color: #f5edda;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .lavvo-photo-card-body {
+      padding: 16px;
+    }
+
+    .lavvo-photo-card-name {
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
       margin: 0 0 8px;
       color: #f5edda;
     }
 
-    .lavvo-card-desc {
-      margin: 0 0 6px;
-      font-size: 0.86rem;
-      line-height: 1.5;
+    .lavvo-photo-card-desc {
+      margin: 0 0 8px;
+      font-size: 0.85rem;
+      line-height: 1.4;
       color: #f5edda;
-      opacity: 0.9;
+      opacity: 0.85;
     }
 
-    .lavvo-card-price {
-      margin-top: 4px;
-      font-size: 0.9rem;
+    .lavvo-photo-card-allergens {
+      margin: 0 0 12px;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      color: #f5edda;
+      opacity: 0.85;
+    }
+
+    .lavvo-photo-card-price {
+      font-size: 0.95rem;
       font-weight: 600;
       color: #f5edda;
     }
 
-    .lavvo-status {
-      position: absolute;
-      right: 24px;
-      top: 0;
-      font-size: 0.85rem;
+    /* Text list (bottom) - Egon style */
+    .lavvo-text-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .lavvo-text-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: start;
+      padding: 20px 24px;
+      background: rgba(245, 237, 218, 0.03);
+      border-radius: 4px;
+      position: relative;
+      transition: background 0.2s ease;
+    }
+
+    .lavvo-text-item:hover {
+      background: rgba(245, 237, 218, 0.06);
+    }
+
+    .lavvo-text-item-content {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .lavvo-text-item-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .lavvo-text-item-name {
+      font-weight: 600;
+      font-size: 1.1rem;
+      letter-spacing: 0.02em;
       color: #f5edda;
-      opacity: 0.85;
-      pointer-events: none;
+      margin: 0;
+    }
+
+    /* SOLD OUT badge for text items */
+    .lavvo-text-item-name.soldout {
+      opacity: 0.5;
+    }
+
+    .lavvo-text-item-soldout-badge {
+      display: inline-block;
+      background: rgba(245, 237, 218, 0.2);
+      color: #f5edda;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .lavvo-text-item-price {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #f5edda;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .lavvo-text-item-price.soldout {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+
+    .lavvo-text-item-desc {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #f5edda;
+      opacity: 0.75;
+    }
+
+    .lavvo-text-item-allergens {
+      margin: 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #f5edda;
+      opacity: 0.7;
+    }
+
+    @media (max-width: 600px) {
+      .lavvo-text-item {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .lavvo-text-item-price {
+        text-align: left;
+      }
+
+      .lavvo-text-list {
+        padding: 0 12px;
+      }
     }
 
     .lavvo-hidden {
       display: none !important;
-    }
-
-    .lavvo-card-soldout .lavvo-card-name,
-    .lavvo-card-soldout .lavvo-card-desc,
-    .lavvo-card-soldout .lavvo-card-price {
-      opacity: 0.6;
-    }
-
-    .lavvo-card-soldout .lavvo-card-price {
-      text-decoration: line-through;
-    }
-
-    .lavvo-card-soldout .lavvo-card-image {
-      filter: grayscale(0.6) brightness(0.5);
-    }
-
-    .lavvo-card-soldout-badge {
-      position: absolute;
-      top: 10px;
-      right: 14px;
-      padding: 4px 10px;
-      font-size: 0.8rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      background: #f5edda;
-      color: #0b3b5a;
     }
   </style>
 
   <div class="lavvo-menu-root" data-lang="en">
     <div class="lavvo-menu-inner">
 
+      <!-- FILTERS -->
       <div class="lavvo-filters">
         <div class="lavvo-filter-chip" data-filter="category-chip">
           <span>Categories</span>
           <select data-filter="category">
             <option value="all">All</option>
             <option value="Drikke">Drinks</option>
-            <option value="Matretter">Main dishes</option>
-            <option value="Dessert">Desserts</option>
+            <option value="Matretter">Food</option>
+            <option value="Dessert">Dessert</option>
             <option value="Annet">Other</option>
           </select>
         </div>
         <div class="lavvo-filter-chip-row">
-          <label class="lavvo-filter-chip">
+          <label class="lavvo-filter-chip" id="allergen-filter-trigger">
             <input type="checkbox" data-filter="allergens" />
             <span>Allergens</span>
           </label>
-          <label class="lavvo-filter-chip">
+          <!-- Take Home button hidden until further notice -->
+          <!-- <label class="lavvo-filter-chip">
             <input type="checkbox" data-filter="takehome" />
             <span>Take Home</span>
-          </label>
+          </label> -->
         </div>
       </div>
 
-      <!-- STATIC INITIAL CONTENT -->
+      <!-- ALLERGEN MODAL -->
+      <div class="lavvo-allergen-modal" id="allergen-modal">
+        <div class="lavvo-allergen-modal-content">
+          <button class="lavvo-allergen-modal-close" id="close-allergen-modal">×</button>
+          <h3>Select relevant allergens</h3>
+          <p>When ordering at the bar, it is important to inform about allergies, so the kitchen can be extra careful about cross-contamination.</p>
+
+          <div class="lavvo-allergen-grid">
+            <!-- Grid generated dynamically by menu.js -->
+          </div>
+
+          <button class="lavvo-allergen-submit" id="apply-allergens">Done</button>
+        </div>
+      </div>
+
+      <!-- DYNAMIC CONTENT -->
       <div class="lavvo-menu-dynamic">
-
-        <!-- Drinks -->
-        <div class="lavvo-category" data-category="Drikke">
-          <div class="lavvo-category-title">Drinks</div>
-          <hr class="lavvo-category-rule">
-          <div class="lavvo-category-subtitle">Hot drinks and mulled beverages</div>
-
-          <div class="lavvo-grid">
-            <!-- Mulled wine -->
-            <div class="lavvo-card lavvo-card-hasphoto"
-                 data-category="Drikke"
-                 data-allergens="almonds"
-                 data-takehome="false"
-                 data-soldout="false">
-              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1576698483491-8c29c1d7a0a4?auto=format&fit=crop&w=1200&q=80');"></div>
-              <div class="lavvo-card-body">
-                <div class="lavvo-card-name">Mulled wine</div>
-                <p class="lavvo-card-desc">
-                  Hot spiced mulled wine served with almonds and raisins.
-                </p>
-                <p class="lavvo-card-desc">Allergens: almonds.</p>
-                <div class="lavvo-card-price">45 NOK</div>
-              </div>
-            </div>
-
-            <!-- Hot chocolate with cream (SOLD OUT) -->
-            <div class="lavvo-card lavvo-card-hasphoto lavvo-card-soldout"
-                 data-category="Drikke"
-                 data-allergens="milk"
-                 data-takehome="false"
-                 data-soldout="true">
-              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1607082350899-7c2ef05d6b59?auto=format&fit=crop&w=1200&q=80');"></div>
-              <div class="lavvo-card-body">
-                <div class="lavvo-card-soldout-badge">SOLD OUT</div>
-                <div class="lavvo-card-name">Hot chocolate with cream</div>
-                <p class="lavvo-card-desc">
-                  Rich hot chocolate topped with whipped cream.
-                </p>
-                <p class="lavvo-card-desc">Allergens: milk.</p>
-                <div class="lavvo-card-price">55 NOK</div>
-              </div>
-            </div>
-
-            <!-- Apple mulled drink -->
-            <div class="lavvo-card lavvo-card-hasphoto"
-                 data-category="Drikke"
-                 data-allergens=""
-                 data-takehome="false"
-                 data-soldout="false">
-              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1607082350011-2a4d6f7dc7cb?auto=format&fit=crop&w=1200&q=80');"></div>
-              <div class="lavvo-card-body">
-                <div class="lavvo-card-name">Apple mulled drink (non-alcoholic)</div>
-                <p class="lavvo-card-desc">
-                  Hot apple cider with cinnamon and cloves.
-                </p>
-                <div class="lavvo-card-price">40 NOK</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Main dishes -->
-        <div class="lavvo-category" data-category="Matretter">
-          <div class="lavvo-category-title">Main dishes</div>
-          <hr class="lavvo-category-rule">
-          <div class="lavvo-category-subtitle">Warm dishes and Christmas favourites</div>
-
-          <div class="lavvo-grid">
-            <!-- Rømmegrøt with cured meats -->
-            <div class="lavvo-card lavvo-card-hasphoto"
-                 data-category="Matretter"
-                 data-allergens="milk, gluten"
-                 data-takehome="true"
-                 data-soldout="false">
-              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1625945076897-7e329419ad0b?auto=format&fit=crop&w=1200&q=80');"></div>
-              <div class="lavvo-card-body">
-                <div class="lavvo-card-name">Rømmegrøt with cured meats</div>
-                <p class="lavvo-card-desc">
-                  Traditional sour cream porridge served with cured meats and flatbread.
-                </p>
-                <p class="lavvo-card-desc">Allergens: milk, gluten.</p>
-                <div class="lavvo-card-price">110 NOK</div>
-              </div>
-            </div>
-
-            <!-- Elk burger -->
-            <div class="lavvo-card lavvo-card-hasphoto"
-                 data-category="Matretter"
-                 data-allergens="gluten, milk, egg"
-                 data-takehome="true"
-                 data-soldout="false">
-              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1606755962773-0c9f9b9e7c34?auto=format&fit=crop&w=1200&q=80');"></div>
-              <div class="lavvo-card-body">
-                <div class="lavvo-card-name">Elk burger in brioche bun</div>
-                <p class="lavvo-card-desc">
-                  Juicy elk burger with lingonberry mayo and crispy onions.
-                </p>
-                <p class="lavvo-card-desc">Allergens: gluten, milk, egg.</p>
-                <div class="lavvo-card-price">145 NOK</div>
-              </div>
-            </div>
-
-            <!-- Christmas sausage in flatbread -->
-            <div class="lavvo-card lavvo-card-hasphoto"
-                 data-category="Matretter"
-                 data-allergens="gluten, mustard"
-                 data-takehome="true"
-                 data-soldout="false">
-              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1585238341986-78d387f4f8cb?auto=format&fit=crop&w=1200&q=80');"></div>
-              <div class="lavvo-card-body">
-                <div class="lavvo-card-name">Christmas sausage in flatbread</div>
-                <p class="lavvo-card-desc">
-                  Homemade Christmas sausage with mustard and crispy onions.
-                </p>
-                <p class="lavvo-card-desc">Allergens: gluten, mustard.</p>
-                <div class="lavvo-card-price">90 NOK</div>
-              </div>
-            </div>
-
-            <!-- Vegan lentil stew (NO IMAGE) -->
-            <div class="lavvo-card lavvo-card-noimage"
-                 data-category="Matretter"
-                 data-allergens=""
-                 data-takehome="true"
-                 data-soldout="false">
-              <div class="lavvo-card-body">
-                <div class="lavvo-card-name">Vegan lentil stew</div>
-                <p class="lavvo-card-desc">
-                  Creamy lentil stew with vegetables and Christmas spices.
-                </p>
-                <div class="lavvo-card-price">120 NOK</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Desserts -->
-        <div class="lavvo-category" data-category="Dessert">
-          <div class="lavvo-category-title">Desserts</div>
-          <hr class="lavvo-category-rule">
-          <div class="lavvo-category-subtitle">Sweet endings</div>
-
-          <div class="lavvo-grid">
-            <!-- Rice pudding with red sauce -->
-            <div class="lavvo-card lavvo-card-hasphoto"
-                 data-category="Dessert"
-                 data-allergens="milk"
-                 data-takehome="true"
-                 data-soldout="false">
-              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1607263511191-3c4d8aaf8f23?auto=format&fit=crop&w=1200&q=80');"></div>
-              <div class="lavvo-card-body">
-                <div class="lavvo-card-name">Rice pudding with red sauce</div>
-                <p class="lavvo-card-desc">
-                  Traditional rice cream with raspberry sauce.
-                </p>
-                <p class="lavvo-card-desc">Allergens: milk.</p>
-                <div class="lavvo-card-price">65 NOK</div>
-              </div>
-            </div>
-
-            <!-- Gingerbread and cookies -->
-            <div class="lavvo-card lavvo-card-hasphoto"
-                 data-category="Dessert"
-                 data-allergens="gluten, milk"
-                 data-takehome="true"
-                 data-soldout="false">
-              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1603791452906-bb6e23a4b32a?auto=format&fit=crop&w=1200&q=80');"></div>
-              <div class="lavvo-card-body">
-                <div class="lavvo-card-name">Gingerbread and cookies</div>
-                <p class="lavvo-card-desc">
-                  Homemade gingerbread and butter cookies.
-                </p>
-                <p class="lavvo-card-desc">Allergens: gluten, milk.</p>
-                <div class="lavvo-card-price">40 NOK</div>
-              </div>
-            </div>
-
-            <!-- Caramel pudding -->
-            <div class="lavvo-card lavvo-card-hasphoto"
-                 data-category="Dessert"
-                 data-allergens="milk, egg"
-                 data-takehome="true"
-                 data-soldout="false">
-              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1636300992760-fb02e7c263d2?auto=format&fit=crop&w=1200&q=80');"></div>
-              <div class="lavvo-card-body">
-                <div class="lavvo-card-name">Caramel pudding</div>
-                <p class="lavvo-card-desc">
-                  Classic caramel pudding with cream.
-                </p>
-                <p class="lavvo-card-desc">Allergens: milk, egg.</p>
-                <div class="lavvo-card-price">70 NOK</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Other -->
-        <div class="lavvo-category" data-category="Annet">
-          <div class="lavvo-category-title">Other</div>
-          <hr class="lavvo-category-rule">
-          <div class="lavvo-category-subtitle">For both children and adults</div>
-
-          <div class="lavvo-grid">
-            <!-- Mulled wine (18+) -->
-            <div class="lavvo-card lavvo-card-hasphoto"
-                 data-category="Annet"
-                 data-allergens="sulfites"
-                 data-takehome="false"
-                 data-soldout="false">
-              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1603048296169-5b4a2c0628b2?auto=format&fit=crop&w=1200&q=80');"></div>
-              <div class="lavvo-card-body">
-                <div class="lavvo-card-name">Mulled wine (18+)</div>
-                <p class="lavvo-card-desc">
-                  Hot red wine mulled with cinnamon and orange.
-                </p>
-                <p class="lavvo-card-desc">Allergens: sulfites.</p>
-                <div class="lavvo-card-price">95 NOK</div>
-              </div>
-            </div>
-
-            <!-- Kids' meal (NO IMAGE) -->
-            <div class="lavvo-card lavvo-card-noimage"
-                 data-category="Annet"
-                 data-allergens="milk, gluten"
-                 data-takehome="true"
-                 data-soldout="false">
-              <div class="lavvo-card-body">
-                <div class="lavvo-card-name">Kids' meal: sausage with mashed potatoes</div>
-                <p class="lavvo-card-desc">
-                  Mild Christmas sausage for kids with mashed potatoes and ketchup.
-                </p>
-                <p class="lavvo-card-desc">Allergens: milk, gluten.</p>
-                <div class="lavvo-card-price">65 NOK</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /.lavvo-menu-dynamic -->
+        <!-- Content is dynamically generated by menu.js -->
+      </div>
 
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/gh/margaretosoftware/julemenyen@main/menu.js"></script>
+
+  <script>
+    // Allergen modal
+    const modal = document.getElementById('allergen-modal');
+    const trigger = document.getElementById('allergen-filter-trigger');
+    const closeBtn = document.getElementById('close-allergen-modal');
+    const applyBtn = document.getElementById('apply-allergens');
+    const checkbox = trigger.querySelector('input[type="checkbox"]');
+
+    trigger.addEventListener('click', function(e) {
+      e.preventDefault();
+      modal.classList.add('active');
+    });
+
+    closeBtn.addEventListener('click', function() {
+      modal.classList.remove('active');
+    });
+
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+      }
+    });
+
+    applyBtn.addEventListener('click', function() {
+      const checkedAllergens = Array.from(document.querySelectorAll('.lavvo-allergen-item input:checked'));
+      if (checkedAllergens.length > 0) {
+        checkbox.checked = true;
+      } else {
+        checkbox.checked = false;
+      }
+      modal.classList.remove('active');
+
+      // Trigger filter update
+      checkbox.dispatchEvent(new Event('change'));
+    });
+  </script>
 </div>

@@ -151,25 +151,13 @@
   }
 
   function subtitleForCategory(catNo, lang) {
-    if (lang === "en") {
-      if (catNo === "Drikke") return "Hot drinks and mulled beverages";
-      if (catNo === "Matretter") return "Warm dishes and Christmas favourites";
-      if (catNo === "Dessert") return "Sweet endings";
-      if (catNo === "Annet") return "For both children and adults";
-      return "";
-    } else {
-      if (catNo === "Drikke") return "Varme drikker og gløgg";
-      if (catNo === "Matretter") return "Varme retter og julefavoritter";
-      if (catNo === "Dessert") return "Søte avslutninger";
-      if (catNo === "Annet") return "For store og små";
-      return "";
-    }
+    // Subtítulos desactivados por petición del cliente
+    return "";
   }
 
   function formatPrice(row) {
     if (row._price == null || isNaN(row._price)) return "";
-    var cur = row.currency || "NOK";
-    return row._price.toString() + " " + cur;
+    return row._price.toString() + ",-";
   }
 
   function escapeHtml(str) {
@@ -226,11 +214,15 @@
   }
 
   function buildSnapshotFromDOM(dynamic, lang) {
-    var cards = dynamic.querySelectorAll(".lavvo-card");
-    if (!cards.length) return "[]";
+    var photoCards = dynamic.querySelectorAll(".lavvo-photo-card");
+    var textItems = dynamic.querySelectorAll(".lavvo-text-item");
+
+    if (!photoCards.length && !textItems.length) return "[]";
 
     var arr = [];
-    cards.forEach(function (card) {
+
+    // Procesar photo cards
+    photoCards.forEach(function (card) {
       var catDiv = card.closest(".lavvo-category");
       var cat = "";
       if (catDiv) {
@@ -241,10 +233,10 @@
         }
       }
 
-      var nameEl = card.querySelector(".lavvo-card-name");
-      var descEl = card.querySelector(".lavvo-card-desc");
-      var priceEl = card.querySelector(".lavvo-card-price");
-      var imgEl = card.querySelector(".lavvo-card-image");
+      var nameEl = card.querySelector(".lavvo-photo-card-name");
+      var descEl = card.querySelector(".lavvo-photo-card-desc");
+      var priceEl = card.querySelector(".lavvo-photo-card-price");
+      var imgEl = card.querySelector(".lavvo-photo-card-image");
 
       var name = nameEl ? nameEl.textContent.trim() : "";
       var desc = descEl ? descEl.textContent.trim() : "";
@@ -252,9 +244,7 @@
       var price = priceEl ? priceEl.textContent.trim() : "";
       var takehomeAttr = card.getAttribute("data-takehome") === "true";
       var soldoutAttr = card.getAttribute("data-soldout") === "true";
-      var hasPhotoAttr = card.classList.contains("lavvo-card-hasphoto");
 
-      // Extract image URL from background-image style
       var imageUrl = "";
       if (imgEl) {
         var bgStyle = imgEl.style.backgroundImage;
@@ -272,8 +262,44 @@
         price: price,
         takehome: takehomeAttr,
         soldout: soldoutAttr,
-        hasPhoto: hasPhotoAttr,
+        hasPhoto: true,
         imageUrl: imageUrl
+      });
+    });
+
+    // Procesar text items
+    textItems.forEach(function (item) {
+      var catDiv = item.closest(".lavvo-category");
+      var cat = "";
+      if (catDiv) {
+        cat = catDiv.getAttribute("data-category") || "";
+        if (!cat) {
+          var titleEl = catDiv.querySelector(".lavvo-category-title");
+          cat = titleEl ? titleEl.textContent.trim() : "";
+        }
+      }
+
+      var nameEl = item.querySelector(".lavvo-text-item-name");
+      var descEl = item.querySelector(".lavvo-text-item-desc");
+      var priceEl = item.querySelector(".lavvo-text-item-price");
+
+      var name = nameEl ? nameEl.textContent.trim() : "";
+      var desc = descEl ? descEl.textContent.trim() : "";
+      var allergensAttr = (item.getAttribute("data-allergens") || "").trim();
+      var price = priceEl ? priceEl.textContent.trim() : "";
+      var takehomeAttr = item.getAttribute("data-takehome") === "true";
+      var soldoutAttr = item.getAttribute("data-soldout") === "true";
+
+      arr.push({
+        category: cat,
+        name: name,
+        description: desc,
+        allergens: allergensAttr,
+        price: price,
+        takehome: takehomeAttr,
+        soldout: soldoutAttr,
+        hasPhoto: false,
+        imageUrl: ""
       });
     });
 
@@ -307,79 +333,186 @@
           "</div>";
       }
 
-      html += '<div class="lavvo-grid">';
-
-      g.items.forEach(function (row) {
-        var name = pickLang(row, "item_name", lang);
-        var desc = pickLang(row, "description", lang);
-        var allergens = pickLang(row, "allergens", lang);
-        var price = formatPrice(row);
-        var takehome = isTakeHome(row);
-        var soldout = isSoldOut(row);
-        var photo = hasPhoto(row);
-
-        var cardClasses = ["lavvo-card"];
-        if (soldout) cardClasses.push("lavvo-card-soldout");
-        if (photo) cardClasses.push("lavvo-card-hasphoto");
-        else cardClasses.push("lavvo-card-noimage");
-
-        html += '<div class="' + cardClasses.join(" ") + '"';
-        html += ' data-category="' + escapeHtml(catNo) + '"';
-        html += ' data-allergens="' + escapeHtml(allergens) + '"';
-        html += ' data-takehome="' + (takehome ? "true" : "false") + '"';
-        html += ' data-soldout="' + (soldout ? "true" : "false") + '">';
-
-        if (photo) {
-          var imgUrl = row.image_url || PLACEHOLDER_IMG;
-          html +=
-            '<div class="lavvo-card-image" style="background-image:url(' +
-            "'" + imgUrl + "'" +
-            ');"></div>';
+      // Separar items con foto y sin foto
+      var photoItems = [];
+      var textItems = [];
+      g.items.forEach(function(row) {
+        if (hasPhoto(row)) {
+          photoItems.push(row);
+        } else {
+          textItems.push(row);
         }
-
-        html += '<div class="lavvo-card-body">';
-
-        if (soldout) {
-          html +=
-            '<div class="lavvo-card-soldout-badge">UTSOLGT</div>';
-        }
-
-        html +=
-          '<div class="lavvo-card-name">' + escapeHtml(name) + "</div>";
-
-        if (desc) {
-          html +=
-            '<p class="lavvo-card-desc">' +
-            escapeHtml(desc) +
-            "</p>";
-        }
-        if (allergens) {
-          if (lang === "en") {
-            html +=
-              '<p class="lavvo-card-desc">Allergens: ' +
-              escapeHtml(allergens) +
-              ".</p>";
-          } else {
-            html +=
-              '<p class="lavvo-card-desc">Allergener: ' +
-              escapeHtml(allergens) +
-              ".</p>";
-          }
-        }
-        if (price) {
-          html +=
-            '<div class="lavvo-card-price">' +
-            escapeHtml(price) +
-            "</div>";
-        }
-
-        html += "</div></div>";
       });
 
-      html += "</div></div>";
+      // Grid de items CON foto (arriba)
+      if (photoItems.length > 0) {
+        html += '<div class="lavvo-photo-grid">';
+        photoItems.forEach(function (row) {
+          var name = pickLang(row, "item_name", lang);
+          var desc = pickLang(row, "description", lang);
+          var allergens = pickLang(row, "allergens", lang);
+          var price = formatPrice(row);
+          var takehome = isTakeHome(row);
+          var soldout = isSoldOut(row);
+          var imgUrl = row.image_url || PLACEHOLDER_IMG;
+
+          html += '<div class="lavvo-photo-card"';
+          html += ' data-category="' + escapeHtml(catNo) + '"';
+          html += ' data-allergens="' + escapeHtml(allergens) + '"';
+          html += ' data-takehome="' + (takehome ? "true" : "false") + '"';
+          html += ' data-soldout="' + (soldout ? "true" : "false") + '">';
+
+          html += '<div class="lavvo-photo-card-image" style="background-image:url(' + "'" + imgUrl + "'" + ');">';
+
+          // Badge de alérgenos si los hay
+          if (allergens) {
+            var allergenLabel = lang === "en" ? "Allergens" : "Allergener";
+            html += '<div class="lavvo-allergen-badge">' + escapeHtml(allergenLabel) + '</div>';
+          }
+
+          // UTSOLGT centrado sobre la imagen
+          if (soldout) {
+            var soldoutLabel = lang === "en" ? "SOLD OUT" : "UTSOLGT";
+            html += '<div class="lavvo-photo-card-soldout-overlay">' + escapeHtml(soldoutLabel) + '</div>';
+          }
+
+          html += '</div>';
+
+          html += '<div class="lavvo-photo-card-body">';
+          html += '<div class="lavvo-photo-card-name">' + escapeHtml(name) + "</div>";
+
+          if (desc) {
+            html += '<p class="lavvo-photo-card-desc">' + escapeHtml(desc) + "</p>";
+          }
+
+          if (allergens) {
+            var allergenLabel = lang === "en" ? "Allergens" : "Allergener";
+            html += '<p class="lavvo-photo-card-allergens"><em>' + escapeHtml(allergenLabel) + ': ' + escapeHtml(allergens) + '</em></p>';
+          }
+
+          if (price) {
+            html += '<div class="lavvo-photo-card-price">' + escapeHtml(price) + "</div>";
+          }
+
+          html += "</div></div>";
+        });
+        html += '</div>';
+      }
+
+      // Lista de items SIN foto (abajo)
+      if (textItems.length > 0) {
+        html += '<div class="lavvo-text-list">';
+        textItems.forEach(function (row) {
+          var name = pickLang(row, "item_name", lang);
+          var desc = pickLang(row, "description", lang);
+          var allergens = pickLang(row, "allergens", lang);
+          var price = formatPrice(row);
+          var takehome = isTakeHome(row);
+          var soldout = isSoldOut(row);
+
+          html += '<div class="lavvo-text-item"';
+          html += ' data-category="' + escapeHtml(catNo) + '"';
+          html += ' data-allergens="' + escapeHtml(allergens) + '"';
+          html += ' data-takehome="' + (takehome ? "true" : "false") + '"';
+          html += ' data-soldout="' + (soldout ? "true" : "false") + '">';
+
+          // Content column
+          html += '<div class="lavvo-text-item-content">';
+
+          html += '<div class="lavvo-text-item-header">';
+          var nameClass = soldout ? "lavvo-text-item-name soldout" : "lavvo-text-item-name";
+          html += '<h3 class="' + nameClass + '">' + escapeHtml(name);
+
+          if (soldout) {
+            var soldoutLabel = lang === "en" ? "SOLD OUT" : "UTSOLGT";
+            html += '<span class="lavvo-text-item-soldout-badge">' + escapeHtml(soldoutLabel) + '</span>';
+          }
+
+          html += '</h3>';
+          html += '</div>';
+
+          if (desc) {
+            html += '<p class="lavvo-text-item-desc">' + escapeHtml(desc) + "</p>";
+          }
+
+          if (allergens) {
+            var allergenLabel = lang === "en" ? "Allergens" : "Allergener";
+            html += '<p class="lavvo-text-item-allergens"><em>' + escapeHtml(allergenLabel) + ': ' + escapeHtml(allergens) + '</em></p>';
+          }
+
+          html += '</div>';
+
+          // Price column
+          if (price) {
+            var priceClass = soldout ? "lavvo-text-item-price soldout" : "lavvo-text-item-price";
+            html += '<div class="' + priceClass + '">' + escapeHtml(price) + "</div>";
+          }
+
+          html += "</div>";
+        });
+        html += '</div>';
+      }
+
+      html += "</div>";
     });
 
     return html;
+  }
+
+  // ---------- Generar modal de alérgenos ----------
+  function buildAllergenModal(groups, lang) {
+    var allergensSet = {};
+
+    // Extraer todos los alérgenos únicos
+    groups.forEach(function(g) {
+      g.items.forEach(function(row) {
+        var allergens = pickLang(row, "allergens", lang);
+        if (allergens) {
+          // Split por comas y limpiar espacios
+          var parts = allergens.split(',');
+          parts.forEach(function(allergen) {
+            var cleaned = allergen.trim().toLowerCase();
+            if (cleaned) {
+              allergensSet[cleaned] = true;
+            }
+          });
+        }
+      });
+    });
+
+    var allergensList = Object.keys(allergensSet).sort();
+    return allergensList;
+  }
+
+  function initAllergenModal(root, allergensList, lang) {
+    var modal = root.querySelector('.lavvo-allergen-modal');
+    if (!modal) return;
+
+    var grid = modal.querySelector('.lavvo-allergen-grid');
+    if (!grid) return;
+
+    // Limpiar grid existente
+    grid.innerHTML = '';
+
+    // Generar checkboxes dinámicamente
+    allergensList.forEach(function(allergen) {
+      var item = document.createElement('div');
+      item.className = 'lavvo-allergen-item';
+
+      var checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.id = 'allergen-' + allergen.replace(/\s+/g, '-');
+      checkbox.value = allergen;
+
+      var label = document.createElement('label');
+      label.htmlFor = checkbox.id;
+      // Capitalizar primera letra
+      label.textContent = allergen.charAt(0).toUpperCase() + allergen.slice(1);
+
+      item.appendChild(checkbox);
+      item.appendChild(label);
+      grid.appendChild(item);
+    });
   }
 
   // ---------- Filtros ----------
@@ -394,25 +527,91 @@
     var onlyAllerg = chkAllerg ? chkAllerg.checked : false;
     var onlyTake = chkTake ? chkTake.checked : false;
 
-    var cards = root.querySelectorAll(".lavvo-card");
-    cards.forEach(function (card) {
+    // Get selected allergens from modal if applicable
+    var selectedAllergens = [];
+    if (onlyAllerg) {
+      var allergenCheckboxes = document.querySelectorAll('.lavvo-allergen-item input[type="checkbox"]:checked');
+      allergenCheckboxes.forEach(function(cb) {
+        var values = cb.value.split(',');
+        selectedAllergens = selectedAllergens.concat(values);
+      });
+    }
+
+    // Filter photo cards
+    var photoCards = root.querySelectorAll(".lavvo-photo-card");
+    photoCards.forEach(function (card) {
       var cat = card.getAttribute("data-category") || "";
       var allergens = (card.getAttribute("data-allergens") || "").trim();
       var takehome = card.getAttribute("data-takehome") === "true";
 
       var show = true;
       if (selectedCat !== "all" && cat !== selectedCat) show = false;
-      if (onlyAllerg && !allergens) show = false;
       if (onlyTake && !takehome) show = false;
+
+      // Check if item contains any selected allergens
+      if (onlyAllerg && selectedAllergens.length > 0) {
+        var itemHasAllergen = false;
+        if (allergens) {
+          var allergenLower = allergens.toLowerCase();
+          for (var i = 0; i < selectedAllergens.length; i++) {
+            if (allergenLower.indexOf(selectedAllergens[i].toLowerCase()) !== -1) {
+              itemHasAllergen = true;
+              break;
+            }
+          }
+        }
+        if (itemHasAllergen) show = false;
+      }
 
       card.classList.toggle("lavvo-hidden", !show);
     });
 
+    // Filter text items
+    var textItems = root.querySelectorAll(".lavvo-text-item");
+    textItems.forEach(function (item) {
+      var cat = item.getAttribute("data-category") || "";
+      var allergens = (item.getAttribute("data-allergens") || "").trim();
+      var takehome = item.getAttribute("data-takehome") === "true";
+
+      var show = true;
+      if (selectedCat !== "all" && cat !== selectedCat) show = false;
+      if (onlyTake && !takehome) show = false;
+
+      // Check if item contains any selected allergens
+      if (onlyAllerg && selectedAllergens.length > 0) {
+        var itemHasAllergen = false;
+        if (allergens) {
+          var allergenLower = allergens.toLowerCase();
+          for (var i = 0; i < selectedAllergens.length; i++) {
+            if (allergenLower.indexOf(selectedAllergens[i].toLowerCase()) !== -1) {
+              itemHasAllergen = true;
+              break;
+            }
+          }
+        }
+        if (itemHasAllergen) show = false;
+      }
+
+      item.classList.toggle("lavvo-hidden", !show);
+    });
+
+    // Hide/show categories and grids
     var cats = root.querySelectorAll(".lavvo-category");
     cats.forEach(function (catDiv) {
-      var visible =
-        catDiv.querySelectorAll(".lavvo-card:not(.lavvo-hidden)").length > 0;
+      var visiblePhotos = catDiv.querySelectorAll(".lavvo-photo-card:not(.lavvo-hidden)").length;
+      var visibleTexts = catDiv.querySelectorAll(".lavvo-text-item:not(.lavvo-hidden)").length;
+      var visible = (visiblePhotos + visibleTexts) > 0;
       catDiv.classList.toggle("lavvo-hidden", !visible);
+
+      // Hide/show grids within category
+      var photoGrid = catDiv.querySelector(".lavvo-photo-grid");
+      var textList = catDiv.querySelector(".lavvo-text-list");
+      if (photoGrid) {
+        photoGrid.classList.toggle("lavvo-hidden", visiblePhotos === 0);
+      }
+      if (textList) {
+        textList.classList.toggle("lavvo-hidden", visibleTexts === 0);
+      }
     });
   }
 
@@ -473,12 +672,17 @@
       var newSnapshot = buildSnapshotFromGroups(groups, lang);
       var domSnapshot = null;
 
-      if (dynamic.querySelector(".lavvo-card")) {
+      if (dynamic.querySelector(".lavvo-photo-card") || dynamic.querySelector(".lavvo-text-item")) {
         domSnapshot = buildSnapshotFromDOM(dynamic, lang);
       }
 
       if (domSnapshot && domSnapshot === newSnapshot) {
         console.log("✅ Menu is already up to date (" + lang + ")");
+
+        // Inicializar modal de alérgenos con valores del CSV
+        var allergensList = buildAllergenModal(groups, lang);
+        initAllergenModal(root, allergensList, lang);
+
         initFilters(root);
         return;
       }
@@ -487,6 +691,11 @@
 
       var newHTML = buildMenuHTML(groups, lang);
       dynamic.innerHTML = newHTML;
+
+      // Inicializar modal de alérgenos con valores del CSV
+      var allergensList = buildAllergenModal(groups, lang);
+      initAllergenModal(root, allergensList, lang);
+
       initFilters(root);
     });
   }
