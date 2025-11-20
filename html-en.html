@@ -409,14 +409,14 @@
       gap: 24px;
       align-items: start;
       padding: 20px 24px;
-      background: rgba(245, 237, 218, 0.1);
+      background: rgba(245, 237, 218, 0.2);
       border-radius: 4px;
       position: relative;
       transition: background 0.2s ease;
     }
 
     .lavvo-text-item:hover {
-      background: rgba(245, 237, 218, 0.15);
+      background: rgba(245, 237, 218, 0.3);
     }
 
     .lavvo-text-item-content {
@@ -514,6 +514,7 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       z-index: 10000;
       animation: lavvo-status-fadein 0.3s ease;
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
 
     @keyframes lavvo-status-fadein {

@@ -648,25 +648,42 @@
     applyFilters(root);
   }
 
-  // ---------- Mensaje "Updating menu ..." ----------
-  function showStatus(root, lang) {
+  // ---------- Mensaje de estado con tres fases ----------
+  function showStatus(root, lang, phase) {
     var existing = root.querySelector(".lavvo-status");
-    if (existing) return existing;
+
+    // Textos según fase y idioma
+    var texts = {
+      checking: lang === "en" ? "Checking for changes..." : "Sjekker om det er endringer...",
+      updating: lang === "en" ? "Updating menu..." : "Oppdaterer meny...",
+      updated: lang === "en" ? "Menu updated!" : "Meny oppdatert!"
+    };
+
+    if (existing) {
+      existing.textContent = texts[phase];
+      return existing;
+    }
 
     var status = document.createElement("div");
     status.className = "lavvo-status";
-    status.textContent =
-      lang === "en" ? "Updating menu ..." : "Oppdaterer meny ...";
+    status.textContent = texts[phase];
 
     var inner = root.querySelector(".lavvo-menu-inner") || root;
     inner.appendChild(status);
     return status;
   }
 
-  function hideStatus(status) {
-    if (status && status.parentNode) {
-      status.parentNode.removeChild(status);
-    }
+  function hideStatusWithFade(status) {
+    if (!status || !status.parentNode) return;
+
+    status.style.opacity = "0";
+    status.style.transform = "translateY(-10px)";
+
+    setTimeout(function() {
+      if (status.parentNode) {
+        status.parentNode.removeChild(status);
+      }
+    }, 300);
   }
 
   // ---------- Render global ----------
@@ -679,6 +696,9 @@
       var dynamic = root.querySelector(".lavvo-menu-dynamic");
       if (!dynamic) return;
 
+      // FASE 1: Mostrar "Chequeando cambios..."
+      var statusMsg = showStatus(root, lang, "checking");
+
       var newSnapshot = buildSnapshotFromGroups(groups, lang);
       var domSnapshot = null;
 
@@ -687,23 +707,31 @@
       }
 
       if (domSnapshot && domSnapshot === newSnapshot) {
+        // No hay cambios - ocultar mensaje después de 800ms
         console.log("✅ Menu is already up to date (" + lang + ")");
+        setTimeout(function() {
+          hideStatusWithFade(statusMsg);
+        }, 800);
       } else {
+        // Hay cambios - mostrar flujo completo
         console.log("🔄 Menu update detected (" + lang + ")");
 
-        // Mostrar mensaje visible de actualización
-        var statusMsg = showStatus(root, lang);
-
-        // Pequeño delay para que el mensaje sea visible antes de actualizar
         setTimeout(function() {
-          var newHTML = buildMenuHTML(groups, lang);
-          dynamic.innerHTML = newHTML;
+          // FASE 2: Cambiar a "Actualizando..."
+          showStatus(root, lang, "updating");
 
-          // Ocultar mensaje después de actualizar
           setTimeout(function() {
-            hideStatus(statusMsg);
-          }, 2000); // Mensaje visible por 2 segundos después de actualizar
-        }, 100);
+            var newHTML = buildMenuHTML(groups, lang);
+            dynamic.innerHTML = newHTML;
+
+            // FASE 3: Cambiar a "Actualizado!" y luego fade out
+            showStatus(root, lang, "updated");
+
+            setTimeout(function() {
+              hideStatusWithFade(statusMsg);
+            }, 1500);
+          }, 600);
+        }, 800);
       }
 
       // SIEMPRE inicializar modal de alérgenos (incluso si el menú no cambió)
