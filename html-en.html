@@ -56,32 +56,116 @@
       padding-right: 20px;
     }
 
+    /* Custom Dropdown */
+    .lavvo-custom-dropdown {
+      position: relative;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    .lavvo-dropdown-label {
+      flex-shrink: 0;
+    }
+
+    .lavvo-dropdown-selected {
+      flex: 1;
+      text-align: center;
+    }
+
+    .lavvo-dropdown-arrow {
+      flex-shrink: 0;
+      font-size: 0.7rem;
+      transition: transform 0.2s;
+    }
+
+    .lavvo-custom-dropdown.active .lavvo-dropdown-arrow {
+      transform: rotate(180deg);
+    }
+
+    .lavvo-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: #0d4d6d;
+      border-radius: 4px;
+      overflow: hidden;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .lavvo-custom-dropdown.active .lavvo-dropdown-menu {
+      display: block;
+    }
+
+    .lavvo-dropdown-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .lavvo-dropdown-item:hover {
+      background: rgba(245, 237, 218, 0.15);
+    }
+
+    .lavvo-dropdown-item.selected {
+      background: rgba(245, 237, 218, 0.25);
+      font-weight: 600;
+    }
+
     .lavvo-filter-chip input[type="checkbox"] {
       width: 18px;
       height: 18px;
       cursor: pointer;
+      flex-shrink: 0;
     }
 
     .lavvo-filter-chip-row {
       display: flex;
       gap: 8px;
       justify-content: center;
+      flex-wrap: wrap;
     }
 
     @media (max-width: 600px) {
       .lavvo-filters {
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
+        gap: 8px;
+        padding: 0;
+      }
+
+      .lavvo-filter-chip {
+        width: calc(100% - 24px);
+        margin: 0 12px;
+        justify-content: center;
+        padding: 14px 16px;
+        font-size: 1rem;
+        box-sizing: border-box;
       }
 
       .lavvo-filter-chip[data-filter="category-chip"] {
-        width: 100%;
         justify-content: center;
+      }
+
+      .lavvo-filter-chip select {
+        text-align: center;
+        width: 100%;
+        font-size: 1rem;
       }
 
       .lavvo-filter-chip-row {
         width: 100%;
+        gap: 0;
+        flex-direction: column;
+      }
+
+      .lavvo-filter-chip-row .lavvo-filter-chip {
+        width: calc(100% - 24px);
+        margin: 0 12px;
         justify-content: center;
+        box-sizing: border-box;
       }
     }
 
@@ -427,15 +511,17 @@
 
       <!-- FILTERS -->
       <div class="lavvo-filters">
-        <div class="lavvo-filter-chip" data-filter="category-chip">
-          <span>Categories</span>
-          <select data-filter="category">
-            <option value="all">All</option>
-            <option value="Drikke">Drinks</option>
-            <option value="Matretter">Food</option>
-            <option value="Dessert">Dessert</option>
-            <option value="Annet">Other</option>
-          </select>
+        <div class="lavvo-filter-chip lavvo-custom-dropdown" data-filter="category-chip" id="category-dropdown">
+          <span class="lavvo-dropdown-label">Categories:</span>
+          <span class="lavvo-dropdown-selected" data-filter="category">All</span>
+          <span class="lavvo-dropdown-arrow">▼</span>
+          <div class="lavvo-dropdown-menu">
+            <div class="lavvo-dropdown-item" data-value="all">All</div>
+            <div class="lavvo-dropdown-item" data-value="Drikke">Drinks</div>
+            <div class="lavvo-dropdown-item" data-value="Matretter">Food</div>
+            <div class="lavvo-dropdown-item" data-value="Dessert">Dessert</div>
+            <div class="lavvo-dropdown-item" data-value="Annet">Other</div>
+          </div>
         </div>
         <div class="lavvo-filter-chip-row">
           <label class="lavvo-filter-chip" id="allergen-filter-trigger">
@@ -697,5 +783,62 @@
       // Trigger filter update
       checkbox.dispatchEvent(new Event('change'));
     });
+
+    // Custom dropdown
+    const dropdown = document.getElementById('category-dropdown');
+    const dropdownSelected = dropdown.querySelector('.lavvo-dropdown-selected');
+    const dropdownItems = dropdown.querySelectorAll('.lavvo-dropdown-item');
+
+    // Add 'value' property to dropdownSelected to mimic a select element
+    Object.defineProperty(dropdownSelected, 'value', {
+      get: function() {
+        return this.getAttribute('data-value') || 'all';
+      },
+      set: function(val) {
+        this.setAttribute('data-value', val);
+      }
+    });
+
+    // Initialize value
+    dropdownSelected.value = 'all';
+
+    // Toggle dropdown
+    dropdown.addEventListener('click', function(e) {
+      if (!e.target.classList.contains('lavvo-dropdown-item')) {
+        dropdown.classList.toggle('active');
+      }
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!dropdown.contains(e.target)) {
+        dropdown.classList.remove('active');
+      }
+    });
+
+    // Handle item selection
+    dropdownItems.forEach(function(item) {
+      item.addEventListener('click', function() {
+        const value = this.getAttribute('data-value');
+        const text = this.textContent;
+
+        // Update selected text and value
+        dropdownSelected.textContent = text;
+        dropdownSelected.value = value;
+
+        // Update selected class
+        dropdownItems.forEach(function(i) { i.classList.remove('selected'); });
+        this.classList.add('selected');
+
+        // Close dropdown
+        dropdown.classList.remove('active');
+
+        // Trigger filter change event
+        dropdownSelected.dispatchEvent(new Event('change'));
+      });
+    });
+
+    // Set initial selected item
+    dropdownItems[0].classList.add('selected');
   </script>
 </div>
