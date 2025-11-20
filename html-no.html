@@ -237,14 +237,250 @@
         </div>
       </div>
 
-      <!-- CONTENIDO DINÁMICO (se carga desde Google Sheets vía menu.js) -->
+      <!-- CONTENIDO ESTÁTICO INICIAL -->
       <div class="lavvo-menu-dynamic">
-        <!-- El contenido se genera dinámicamente por menu.js -->
-      </div>
+
+        <!-- Drikke -->
+        <div class="lavvo-category" data-category="Drikke">
+          <div class="lavvo-category-title">Drikke</div>
+          <hr class="lavvo-category-rule">
+          <div class="lavvo-category-subtitle">Varme drikker og gløgg</div>
+
+          <div class="lavvo-grid">
+            <!-- Gløgg -->
+            <div class="lavvo-card lavvo-card-hasphoto"
+                 data-category="Drikke"
+                 data-allergens="mandler"
+                 data-takehome="false"
+                 data-soldout="false">
+              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1576698483491-8c29c1d7a0a4');"></div>
+              <div class="lavvo-card-body">
+                <div class="lavvo-card-name">Gløgg</div>
+                <p class="lavvo-card-desc">
+                  Varm krydret gløgg servert med mandler og rosiner.
+                </p>
+                <p class="lavvo-card-desc">Allergener: mandler.</p>
+                <div class="lavvo-card-price">45 NOK</div>
+              </div>
+            </div>
+
+            <!-- Kakao med krem (UTSOLGT) -->
+            <div class="lavvo-card lavvo-card-hasphoto lavvo-card-soldout"
+                 data-category="Drikke"
+                 data-allergens="melk"
+                 data-takehome="false"
+                 data-soldout="true">
+              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1607082350899-7c2ef05d6b59');"></div>
+              <div class="lavvo-card-body">
+                <div class="lavvo-card-soldout-badge">UTSOLGT</div>
+                <div class="lavvo-card-name">Kakao med krem</div>
+                <p class="lavvo-card-desc">
+                  Fyldig kakao toppet med pisket krem.
+                </p>
+                <p class="lavvo-card-desc">Allergener: melk.</p>
+                <div class="lavvo-card-price">55 NOK</div>
+              </div>
+            </div>
+
+            <!-- Eplegløgg (alkoholfri) -->
+            <div class="lavvo-card lavvo-card-hasphoto"
+                 data-category="Drikke"
+                 data-allergens=""
+                 data-takehome="false"
+                 data-soldout="false">
+              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1607082350011-2a4d6f7dc7cb');"></div>
+              <div class="lavvo-card-body">
+                <div class="lavvo-card-name">Eplegløgg (alkoholfri)</div>
+                <p class="lavvo-card-desc">
+                  Varm eplemost med kanel og nellik.
+                </p>
+                <div class="lavvo-card-price">40 NOK</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Matretter -->
+        <div class="lavvo-category" data-category="Matretter">
+          <div class="lavvo-category-title">Matretter</div>
+          <hr class="lavvo-category-rule">
+          <div class="lavvo-category-subtitle">Varme retter og julefavoritter</div>
+
+          <div class="lavvo-grid">
+            <!-- Rømmegrøt med spekemat -->
+            <div class="lavvo-card lavvo-card-hasphoto"
+                 data-category="Matretter"
+                 data-allergens="melk, gluten"
+                 data-takehome="true"
+                 data-soldout="false">
+              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1625945076897-7e329419ad0b');"></div>
+              <div class="lavvo-card-body">
+                <div class="lavvo-card-name">Rømmegrøt med spekemat</div>
+                <p class="lavvo-card-desc">
+                  Klassisk rømmegrøt servert med spekemat og flatbrød.
+                </p>
+                <p class="lavvo-card-desc">Allergener: melk, gluten.</p>
+                <div class="lavvo-card-price">110 NOK</div>
+              </div>
+            </div>
+
+            <!-- Elgburger i briochebrød -->
+            <div class="lavvo-card lavvo-card-hasphoto"
+                 data-category="Matretter"
+                 data-allergens="gluten, melk, egg"
+                 data-takehome="true"
+                 data-soldout="false">
+              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1606755962773-0c9f9b9e7c34');"></div>
+              <div class="lavvo-card-body">
+                <div class="lavvo-card-name">Elgburger i briochebrød</div>
+                <p class="lavvo-card-desc">
+                  Saftig elgburger med tyttebærmajones og sprø løk.
+                </p>
+                <p class="lavvo-card-desc">Allergener: gluten, melk, egg.</p>
+                <div class="lavvo-card-price">145 NOK</div>
+              </div>
+            </div>
+
+            <!-- Julepølse i lefse -->
+            <div class="lavvo-card lavvo-card-hasphoto"
+                 data-category="Matretter"
+                 data-allergens="gluten, sennep"
+                 data-takehome="true"
+                 data-soldout="false">
+              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1585238341986-78d387f4f8cb');"></div>
+              <div class="lavvo-card-body">
+                <div class="lavvo-card-name">Julepølse i lefse</div>
+                <p class="lavvo-card-desc">
+                  Håndlaget julepølse med sennep og sprøstekt løk.
+                </p>
+                <p class="lavvo-card-desc">Allergener: gluten, sennep.</p>
+                <div class="lavvo-card-price">90 NOK</div>
+              </div>
+            </div>
+
+            <!-- Vegansk linsegryte (SIN FOTO) -->
+            <div class="lavvo-card lavvo-card-noimage"
+                 data-category="Matretter"
+                 data-allergens=""
+                 data-takehome="true"
+                 data-soldout="false">
+              <div class="lavvo-card-body">
+                <div class="lavvo-card-name">Vegansk linsegryte</div>
+                <p class="lavvo-card-desc">
+                  Kremet linsegryte med grønnsaker og julekrydder.
+                </p>
+                <div class="lavvo-card-price">120 NOK</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dessert -->
+        <div class="lavvo-category" data-category="Dessert">
+          <div class="lavvo-category-title">Dessert</div>
+          <hr class="lavvo-category-rule">
+          <div class="lavvo-category-subtitle">Søte avslutninger</div>
+
+          <div class="lavvo-grid">
+            <!-- Riskrem med rød saus -->
+            <div class="lavvo-card lavvo-card-hasphoto"
+                 data-category="Dessert"
+                 data-allergens="melk"
+                 data-takehome="true"
+                 data-soldout="false">
+              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1607263511191-3c4d8aaf8f23');"></div>
+              <div class="lavvo-card-body">
+                <div class="lavvo-card-name">Riskrem med rød saus</div>
+                <p class="lavvo-card-desc">
+                  Tradisjonell riskrem med bringebærsaus.
+                </p>
+                <p class="lavvo-card-desc">Allergener: melk.</p>
+                <div class="lavvo-card-price">65 NOK</div>
+              </div>
+            </div>
+
+            <!-- Pepperkake og småkaker -->
+            <div class="lavvo-card lavvo-card-hasphoto"
+                 data-category="Dessert"
+                 data-allergens="gluten, melk"
+                 data-takehome="true"
+                 data-soldout="false">
+              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1603791452906-bb6e23a4b32a');"></div>
+              <div class="lavvo-card-body">
+                <div class="lavvo-card-name">Pepperkake og småkaker</div>
+                <p class="lavvo-card-desc">
+                  Hjemmebakte pepperkaker og smørkjeks.
+                </p>
+                <p class="lavvo-card-desc">Allergener: gluten, melk.</p>
+                <div class="lavvo-card-price">40 NOK</div>
+              </div>
+            </div>
+
+            <!-- Karamellpudding -->
+            <div class="lavvo-card lavvo-card-hasphoto"
+                 data-category="Dessert"
+                 data-allergens="melk, egg"
+                 data-takehome="true"
+                 data-soldout="false">
+              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1636300992760-fb02e7c263d2');"></div>
+              <div class="lavvo-card-body">
+                <div class="lavvo-card-name">Karamellpudding</div>
+                <p class="lavvo-card-desc">
+                  Klassisk karamellpudding med krem.
+                </p>
+                <p class="lavvo-card-desc">Allergener: melk, egg.</p>
+                <div class="lavvo-card-price">70 NOK</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Annet -->
+        <div class="lavvo-category" data-category="Annet">
+          <div class="lavvo-category-title">Annet</div>
+          <hr class="lavvo-category-rule">
+          <div class="lavvo-category-subtitle">For store og små</div>
+
+          <div class="lavvo-grid">
+            <!-- Gløgg med vin (18+) -->
+            <div class="lavvo-card lavvo-card-hasphoto"
+                 data-category="Annet"
+                 data-allergens="sulfitter"
+                 data-takehome="false"
+                 data-soldout="false">
+              <div class="lavvo-card-image" style="background-image:url('https://images.unsplash.com/photo-1603048296169-5b4a2c0628b2');"></div>
+              <div class="lavvo-card-body">
+                <div class="lavvo-card-name">Gløgg med vin (18+)</div>
+                <p class="lavvo-card-desc">
+                  Varm rødvinsgløgg med kanel og appelsin.
+                </p>
+                <p class="lavvo-card-desc">Allergener: sulfitter.</p>
+                <div class="lavvo-card-price">95 NOK</div>
+              </div>
+            </div>
+
+            <!-- Barnemeny: Pølse med potetmos (SIN FOTO) -->
+            <div class="lavvo-card lavvo-card-noimage"
+                 data-category="Annet"
+                 data-allergens="melk, gluten"
+                 data-takehome="true"
+                 data-soldout="false">
+              <div class="lavvo-card-body">
+                <div class="lavvo-card-name">Barnemeny: Pølse med potetmos</div>
+                <p class="lavvo-card-desc">
+                  Mild julepølse for barn med potetmos og ketchup.
+                </p>
+                <p class="lavvo-card-desc">Allergener: melk, gluten.</p>
+                <div class="lavvo-card-price">65 NOK</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.lavvo-menu-dynamic -->
 
     </div>
   </div>
 
-  <!-- Script con cache breaker (actualizar el número después de cada cambio) -->
-  <script src="https://raw.githubusercontent.com/TU_USUARIO/julemenyen/main/menu.js?v=1"></script>
+  <script src="https://cdn.jsdelivr.net/gh/margaretosoftware/julemenyen@main/menu.js"></script>
 </div>

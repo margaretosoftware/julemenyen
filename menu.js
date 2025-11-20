@@ -3,11 +3,9 @@
 // =============================
 (function () {
   // URL de la hoja de cálculo de Google (publicada como CSV)
-  // Tu spreadsheet ID: 1yjhrRr1-ac2V74ihbnOjVJ38k9kJkRCU7i7GCssZijA
-  // IMPORTANTE: Debes publicar la hoja como CSV desde Google Sheets:
-  // File > Share > Publish to web > Sheet 1 > CSV > Publish
+  // Esta URL ya está publicada y es accesible públicamente
   var DEFAULT_CSV_URL =
-    "https://docs.google.com/spreadsheets/d/1yjhrRr1-ac2V74ihbnOjVJ38k9kJkRCU7i7GCssZijA/export?format=csv&gid=0";
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSo0BYZqtNREhfTCo-ZPWCis5_84iokH3Bqi68itYeRYzjXNsyGK5BWw0omyzHQrwks4vB7yph5-bTk/pub?gid=0&single=true&output=csv";
 
   var CSV_URL =
     (typeof window !== "undefined" && window.MENY_CSV_URL) || DEFAULT_CSV_URL;
