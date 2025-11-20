@@ -649,8 +649,9 @@
   }
 
   // ---------- Mensaje de estado con tres fases ----------
-  function showStatus(root, lang, phase) {
-    var existing = root.querySelector(".lavvo-status");
+  function updateStatus(root, lang, phase) {
+    var status = root.querySelector(".lavvo-status");
+    if (!status) return null;
 
     // Textos según fase y idioma
     var texts = {
@@ -659,17 +660,7 @@
       updated: lang === "en" ? "Menu updated!" : "Meny oppdatert!"
     };
 
-    if (existing) {
-      existing.textContent = texts[phase];
-      return existing;
-    }
-
-    var status = document.createElement("div");
-    status.className = "lavvo-status";
     status.textContent = texts[phase];
-
-    var inner = root.querySelector(".lavvo-menu-inner") || root;
-    inner.appendChild(status);
     return status;
   }
 
@@ -696,8 +687,8 @@
       var dynamic = root.querySelector(".lavvo-menu-dynamic");
       if (!dynamic) return;
 
-      // FASE 1: Mostrar "Chequeando cambios..."
-      var statusMsg = showStatus(root, lang, "checking");
+      // El mensaje "checking" ya está pre-renderizado en el HTML
+      var statusMsg = root.querySelector(".lavvo-status");
 
       var newSnapshot = buildSnapshotFromGroups(groups, lang);
       var domSnapshot = null;
@@ -718,14 +709,14 @@
 
         setTimeout(function() {
           // FASE 2: Cambiar a "Actualizando..."
-          showStatus(root, lang, "updating");
+          updateStatus(root, lang, "updating");
 
           setTimeout(function() {
             var newHTML = buildMenuHTML(groups, lang);
             dynamic.innerHTML = newHTML;
 
             // FASE 3: Cambiar a "Actualizado!" y luego fade out
-            showStatus(root, lang, "updated");
+            updateStatus(root, lang, "updated");
 
             setTimeout(function() {
               hideStatusWithFade(statusMsg);
