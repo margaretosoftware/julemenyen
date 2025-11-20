@@ -690,8 +690,20 @@
         console.log("✅ Menu is already up to date (" + lang + ")");
       } else {
         console.log("🔄 Menu update detected (" + lang + ")");
-        var newHTML = buildMenuHTML(groups, lang);
-        dynamic.innerHTML = newHTML;
+
+        // Mostrar mensaje visible de actualización
+        var statusMsg = showStatus(root, lang);
+
+        // Pequeño delay para que el mensaje sea visible antes de actualizar
+        setTimeout(function() {
+          var newHTML = buildMenuHTML(groups, lang);
+          dynamic.innerHTML = newHTML;
+
+          // Ocultar mensaje después de actualizar
+          setTimeout(function() {
+            hideStatus(statusMsg);
+          }, 2000); // Mensaje visible por 2 segundos después de actualizar
+        }, 100);
       }
 
       // SIEMPRE inicializar modal de alérgenos (incluso si el menú no cambió)
