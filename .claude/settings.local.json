@@ -6,7 +6,8 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nInitial commit: Christmas market menu system\n\n- Add Norwegian HTML template (html-no.html)\n- Add English HTML template (html-en.html)\n- Add dynamic menu.js that loads from Google Sheets\n- Add comprehensive README with setup instructions\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(open:*)"
+      "Bash(open:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

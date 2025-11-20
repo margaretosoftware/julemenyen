@@ -74,9 +74,20 @@ https://docs.google.com/spreadsheets/d/1yjhrRr1-ac2V74ihbnOjVJ38k9kJkRCU7i7GCssZ
 - **order**: Orden de aparición (números más bajos aparecen primero)
 - **image_url**: URL de la imagen (opcional)
 
-### Cambios se reflejan automáticamente
+### Cómo funciona la actualización automática
 
-El script `menu.js` verifica los cambios cada vez que alguien carga la página. Si hay diferencias, actualiza el menú automáticamente.
+**IMPORTANTE**: El HTML contiene el menú **pre-renderizado** con los datos del CSV. Esto significa:
+
+1. **Primera carga**: El usuario ve inmediatamente el menú renderizado en el HTML
+2. **Verificación automática**: El script `menu.js` descarga el CSV y compara con el HTML actual
+3. **Actualización si hay cambios**: Si detecta diferencias, regenera el HTML automáticamente
+4. **Sin cambios**: Si el CSV está igual, no hace nada (carga instantánea)
+
+#### Ventajas de este sistema:
+- ✅ **Carga instantánea**: No hay pantalla en blanco mientras carga el CSV
+- ✅ **SEO friendly**: Los motores de búsqueda ven el contenido completo
+- ✅ **Actualización automática**: Los cambios en Google Sheets se reflejan sin tocar el código
+- ✅ **Fallback**: Si falla la conexión al CSV, el menú original sigue visible
 
 ## 🔄 Cache Breaker
 
@@ -118,20 +129,24 @@ var TAKEHOME_ITEMS_NO = {
 
 ## 🎨 Características del menú
 
+### Diseño estilo Egon.no:
+- **Items con foto**: Se muestran como tarjetas en grid de 3 columnas (arriba)
+- **Items sin foto**: Se listan en formato texto centrado con max-width 900px (abajo)
+- **Cards sutiles**: Fondo semi-transparente con efecto hover
+- **Responsive**: 3 columnas → 2 columnas (tablet) → 1 columna (móvil)
+
 ### Filtros interactivos:
-- Filtro por categoría (Drikke, Matretter, Dessert, Annet)
-- Mostrar solo platos con alérgenos
-- Mostrar solo platos "Take Home"
+- **Categorías**: Dropdown para filtrar por tipo (Drikke, Matretter, Dessert, Annet)
+- **Allergier**: Modal con checkboxes que extrae alérgenos únicos del CSV
+- **Take Home**: Filtro temporalmente oculto (puede activarse en el futuro)
 
-### Responsive:
-- 3 columnas en desktop
-- 2 columnas en tablet
-- 1 columna en móvil
-
-### Visual:
-- Platos agotados se muestran en escala de grises con badge "UTSOLGT"
-- Imágenes de Unsplash para platos con foto
-- Estilo visual consistente con los colores del mercado (#0b3b5a y #f5edda)
+### Características visuales:
+- **Formato de precio**: Muestra "100,-" en lugar de "100 NOK"
+- **Alérgenos en cursiva**: Formato `<em>Allergener: melk, gluten</em>`
+- **UTSOLGT overlay**: Centrado y grande sobre la imagen para items con foto
+- **UTSOLGT badge**: Badge inline para items sin foto
+- **Allergen badge**: Badge pequeño en esquina superior izquierda de fotos
+- **Colores**: Paleta consistente (#0b3b5a azul oscuro, #f5edda beige, #0d4d6d modal)
 
 ## 🛠️ Soporte técnico
 
