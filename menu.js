@@ -678,21 +678,14 @@
 
       if (domSnapshot && domSnapshot === newSnapshot) {
         console.log("✅ Menu is already up to date (" + lang + ")");
-
-        // Inicializar modal de alérgenos con valores del CSV
-        var allergensList = buildAllergenModal(groups, lang);
-        initAllergenModal(root, allergensList, lang);
-
-        initFilters(root);
-        return;
+      } else {
+        console.log("🔄 Menu update detected (" + lang + ")");
+        var newHTML = buildMenuHTML(groups, lang);
+        dynamic.innerHTML = newHTML;
       }
 
-      console.log("🔄 Menu update detected (" + lang + ")");
-
-      var newHTML = buildMenuHTML(groups, lang);
-      dynamic.innerHTML = newHTML;
-
-      // Inicializar modal de alérgenos con valores del CSV
+      // SIEMPRE inicializar modal de alérgenos (incluso si el menú no cambió)
+      // Esto asegura que el grid se llene dinámicamente desde el CSV
       var allergensList = buildAllergenModal(groups, lang);
       initAllergenModal(root, allergensList, lang);
 
