@@ -661,18 +661,20 @@
     };
 
     status.textContent = texts[phase];
+    status.style.opacity = "0.8"; // Asegurar que sea visible
     return status;
   }
 
   function hideStatusWithFade(status) {
-    if (!status || !status.parentNode) return;
+    if (!status) return;
 
+    // Solo hacer invisible, no eliminar (para evitar reflow)
     status.style.opacity = "0";
-    status.style.transform = "translateY(-10px)";
 
+    // Después de la transición, vaciar el contenido pero mantener el espacio
     setTimeout(function() {
-      if (status.parentNode) {
-        status.parentNode.removeChild(status);
+      if (status) {
+        status.textContent = "";
       }
     }, 300);
   }

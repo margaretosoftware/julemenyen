@@ -511,6 +511,18 @@
       }
     }
 
+    .lavvo-status {
+      text-align: center;
+      color: #f5edd6;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0.8;
+      min-height: 20px;
+      margin-bottom: 16px;
+      transition: opacity 0.3s ease;
+    }
+
     .lavvo-hidden {
       display: none !important;
     }
@@ -518,6 +530,9 @@
 
   <div class="lavvo-menu-root" data-lang="en">
     <div class="lavvo-menu-inner">
+
+      <!-- STATUS MESSAGE (pre-rendered, updated by JS) -->
+      <div class="lavvo-status">Checking for changes...</div>
 
       <!-- FILTERS -->
       <div class="lavvo-filters">
