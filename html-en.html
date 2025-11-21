@@ -501,15 +501,26 @@
       }
     }
 
-    .lavvo-status {
-      text-align: center;
-      color: #f5edd6;
-      padding: 12px 24px;
-      font-size: 14px;
-      font-weight: 500;
-      opacity: 0.8;
-      min-height: 20px;
+    .lavvo-status-container {
+      position: relative;
+      height: 44px;
       margin-bottom: 16px;
+    }
+
+    .lavvo-status {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      background: rgba(245, 237, 218, 0.95);
+      color: #0b3b5a;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      white-space: nowrap;
       transition: opacity 0.3s ease;
     }
 
@@ -520,9 +531,6 @@
 
   <div class="lavvo-menu-root" data-lang="en">
     <div class="lavvo-menu-inner">
-
-      <!-- STATUS MESSAGE (pre-rendered, updated by JS) -->
-      <div class="lavvo-status">Checking for changes...</div>
 
       <!-- FILTERS -->
       <div class="lavvo-filters">
@@ -549,6 +557,11 @@
             <span>Take Home</span>
           </label> -->
         </div>
+      </div>
+
+      <!-- STATUS MESSAGE CONTAINER (prevents reflow) -->
+      <div class="lavvo-status-container">
+        <div class="lavvo-status">Checking for changes...</div>
       </div>
 
       <!-- ALLERGEN MODAL -->
