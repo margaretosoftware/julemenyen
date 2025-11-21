@@ -873,8 +873,8 @@
 
       // SIEMPRE inicializar categorías y alérgenos (incluso si el menú no cambió)
       // Esto asegura que los filtros se llenen dinámicamente desde el CSV
-      var categoriesList = buildCategoryList(groups);
-      initCategoryDropdown(root, categoriesList, lang);
+      var categoriesMap = buildCategoryList(groups);
+      initCategoryDropdown(root, categoriesMap, lang);
 
       var allergensList = buildAllergenModal(groups, lang);
       initAllergenModal(root, allergensList, lang);
