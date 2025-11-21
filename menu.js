@@ -484,8 +484,45 @@
     var dropdownSelected = dropdown.querySelector('.lavvo-dropdown-selected');
     if (!dropdownSelected) return;
 
+    // Asegurar que dropdownSelected tenga la propiedad 'value'
+    if (!dropdownSelected.hasOwnProperty('value')) {
+      Object.defineProperty(dropdownSelected, 'value', {
+        get: function() {
+          return this.getAttribute('data-value') || 'all';
+        },
+        set: function(val) {
+          this.setAttribute('data-value', val);
+        },
+        configurable: true
+      });
+    }
+
+    // Initialize value if not set
+    if (!dropdownSelected.getAttribute('data-value')) {
+      dropdownSelected.value = 'all';
+    }
+
     // categoriesMap es { 'Drikke': 'Drinks', 'Matretter': 'Food', ... }
     var categoryKeys = Object.keys(categoriesMap);
+
+    // Función para manejar click en items (reutilizable)
+    function handleItemClick() {
+      var allItems = menu.querySelectorAll('.lavvo-dropdown-item');
+
+      // Update selected text and value
+      dropdownSelected.textContent = this.textContent;
+      dropdownSelected.value = this.getAttribute('data-value');
+
+      // Update selected class
+      allItems.forEach(function(i) { i.classList.remove('selected'); });
+      this.classList.add('selected');
+
+      // Close dropdown
+      dropdown.classList.remove('active');
+
+      // Trigger filter change event
+      dropdownSelected.dispatchEvent(new Event('change'));
+    }
 
     // Revisar items existentes
     var existingItems = menu.querySelectorAll('.lavvo-dropdown-item');
@@ -505,6 +542,13 @@
         item.remove();
       } else {
         existingCategories[val] = true;
+
+        // Actualizar el texto traducido si es necesario
+        var categoryEn = categoriesMap[val];
+        var expectedText = lang === 'en' ? categoryEn : val;
+        if (item.textContent !== expectedText) {
+          item.textContent = expectedText;
+        }
       }
     });
 
@@ -523,26 +567,23 @@
       item.setAttribute('data-value', categoryNo); // Siempre usar el valor NO para filtrado
       item.textContent = displayText;
 
-      // Añadir evento click
-      item.addEventListener('click', function() {
-        var allItems = menu.querySelectorAll('.lavvo-dropdown-item');
-
-        // Update selected text and value
-        dropdownSelected.textContent = this.textContent;
-        dropdownSelected.value = this.getAttribute('data-value');
-
-        // Update selected class
-        allItems.forEach(function(i) { i.classList.remove('selected'); });
-        this.classList.add('selected');
-
-        // Close dropdown
-        dropdown.classList.remove('active');
-
-        // Trigger filter change event
-        dropdownSelected.dispatchEvent(new Event('change'));
-      });
+      // Añadir evento click usando la función compartida
+      item.addEventListener('click', handleItemClick);
 
       menu.appendChild(item);
+    });
+
+    // IMPORTANTE: Asegurar que TODOS los items (pre-renderizados + nuevos)
+    // usen delegación de eventos desde el menu
+    // Esto evita conflictos con event listeners del HTML inline
+    var allCurrentItems = menu.querySelectorAll('.lavvo-dropdown-item');
+    allCurrentItems.forEach(function(item) {
+      // Clonar el item para eliminar todos los event listeners anteriores
+      var newItem = item.cloneNode(true);
+      item.parentNode.replaceChild(newItem, item);
+
+      // Añadir el nuevo event listener
+      newItem.addEventListener('click', handleItemClick);
     });
   }
 
