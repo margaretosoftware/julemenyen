@@ -459,6 +459,102 @@
     return html;
   }
 
+  // ---------- Extraer categorías únicas del CSV ----------
+  function buildCategoryList(groups) {
+    var categoriesSet = {};
+
+    groups.forEach(function(g) {
+      if (g.category) {
+        categoriesSet[g.category] = true;
+      }
+    });
+
+    var categoriesList = Object.keys(categoriesSet);
+    return categoriesList;
+  }
+
+  function initCategoryDropdown(root, categoriesList, lang) {
+    var dropdown = root.querySelector('#category-dropdown');
+    if (!dropdown) return;
+
+    var menu = dropdown.querySelector('.lavvo-dropdown-menu');
+    if (!menu) return;
+
+    var dropdownSelected = dropdown.querySelector('.lavvo-dropdown-selected');
+    if (!dropdownSelected) return;
+
+    // Mapeo de categorías NO → EN
+    var categoryTranslations = {
+      'Drikke': lang === 'en' ? 'Drinks' : 'Drikke',
+      'Matretter': lang === 'en' ? 'Food' : 'Matretter',
+      'Dessert': lang === 'en' ? 'Dessert' : 'Dessert',
+      'Annet': lang === 'en' ? 'Other' : 'Annet'
+    };
+
+    // Crear Set de categorías del CSV
+    var csvCategoriesSet = {};
+    categoriesList.forEach(function(cat) {
+      csvCategoriesSet[cat] = true;
+    });
+
+    // Revisar items existentes
+    var existingItems = menu.querySelectorAll('.lavvo-dropdown-item');
+    var existingCategories = {};
+
+    existingItems.forEach(function(item) {
+      var val = item.getAttribute('data-value');
+
+      // Mantener "all"
+      if (val === 'all') {
+        existingCategories[val] = true;
+        return;
+      }
+
+      // Si la categoría pre-renderizada NO está en el CSV, eliminarla
+      if (!csvCategoriesSet[val]) {
+        item.remove();
+      } else {
+        existingCategories[val] = true;
+      }
+    });
+
+    // Añadir categorías del CSV que no existan
+    categoriesList.forEach(function(category) {
+      if (existingCategories[category]) {
+        // Ya existe
+        return;
+      }
+
+      var translated = categoryTranslations[category] || category;
+
+      var item = document.createElement('div');
+      item.className = 'lavvo-dropdown-item';
+      item.setAttribute('data-value', category);
+      item.textContent = translated;
+
+      // Añadir evento click
+      item.addEventListener('click', function() {
+        var allItems = menu.querySelectorAll('.lavvo-dropdown-item');
+
+        // Update selected text and value
+        dropdownSelected.textContent = this.textContent;
+        dropdownSelected.value = this.getAttribute('data-value');
+
+        // Update selected class
+        allItems.forEach(function(i) { i.classList.remove('selected'); });
+        this.classList.add('selected');
+
+        // Close dropdown
+        dropdown.classList.remove('active');
+
+        // Trigger filter change event
+        dropdownSelected.dispatchEvent(new Event('change'));
+      });
+
+      menu.appendChild(item);
+    });
+  }
+
   // ---------- Generar modal de alérgenos ----------
   function buildAllergenModal(groups, lang) {
     var allergensSet = {};
@@ -491,14 +587,30 @@
     var grid = modal.querySelector('.lavvo-allergen-grid');
     if (!grid) return;
 
-    // Obtener alérgenos ya existentes (pre-renderizados)
-    var existingAllergens = {};
-    var existingCheckboxes = grid.querySelectorAll('input[type="checkbox"]');
-    existingCheckboxes.forEach(function(cb) {
-      existingAllergens[cb.value] = true;
+    // Crear un Set para búsqueda rápida
+    var csvAllergensSet = {};
+    allergensList.forEach(function(allergen) {
+      csvAllergensSet[allergen] = true;
     });
 
-    // Solo añadir nuevos alérgenos del CSV que no existan
+    // Obtener alérgenos ya existentes (pre-renderizados)
+    var existingItems = grid.querySelectorAll('.lavvo-allergen-item');
+    var existingAllergens = {};
+
+    existingItems.forEach(function(item) {
+      var cb = item.querySelector('input[type="checkbox"]');
+      if (cb) {
+        var value = cb.value;
+        existingAllergens[value] = true;
+
+        // Si el alérgeno pre-renderizado NO está en el CSV, eliminarlo
+        if (!csvAllergensSet[value]) {
+          item.remove();
+        }
+      }
+    });
+
+    // Añadir nuevos alérgenos del CSV que no existan
     allergensList.forEach(function(allergen) {
       if (existingAllergens[allergen]) {
         // Ya existe, no hacer nada
@@ -727,8 +839,11 @@
         }, 800);
       }
 
-      // SIEMPRE inicializar modal de alérgenos (incluso si el menú no cambió)
-      // Esto asegura que el grid se llene dinámicamente desde el CSV
+      // SIEMPRE inicializar categorías y alérgenos (incluso si el menú no cambió)
+      // Esto asegura que los filtros se llenen dinámicamente desde el CSV
+      var categoriesList = buildCategoryList(groups);
+      initCategoryDropdown(root, categoriesList, lang);
+
       var allergensList = buildAllergenModal(groups, lang);
       initAllergenModal(root, allergensList, lang);
 
