@@ -461,19 +461,20 @@
 
   // ---------- Extraer categorías únicas del CSV ----------
   function buildCategoryList(groups) {
-    var categoriesSet = {};
+    var categoriesMap = {}; // { 'Drikke': 'Drinks', 'Matretter': 'Food', ... }
 
     groups.forEach(function(g) {
       if (g.category) {
-        categoriesSet[g.category] = true;
+        var catNo = g.category;
+        var catEn = g.category_en || catNo; // Fallback a NO si no hay EN
+        categoriesMap[catNo] = catEn;
       }
     });
 
-    var categoriesList = Object.keys(categoriesSet);
-    return categoriesList;
+    return categoriesMap;
   }
 
-  function initCategoryDropdown(root, categoriesList, lang) {
+  function initCategoryDropdown(root, categoriesMap, lang) {
     var dropdown = root.querySelector('#category-dropdown');
     if (!dropdown) return;
 
@@ -483,19 +484,8 @@
     var dropdownSelected = dropdown.querySelector('.lavvo-dropdown-selected');
     if (!dropdownSelected) return;
 
-    // Mapeo de categorías NO → EN
-    var categoryTranslations = {
-      'Drikke': lang === 'en' ? 'Drinks' : 'Drikke',
-      'Matretter': lang === 'en' ? 'Food' : 'Matretter',
-      'Dessert': lang === 'en' ? 'Dessert' : 'Dessert',
-      'Annet': lang === 'en' ? 'Other' : 'Annet'
-    };
-
-    // Crear Set de categorías del CSV
-    var csvCategoriesSet = {};
-    categoriesList.forEach(function(cat) {
-      csvCategoriesSet[cat] = true;
-    });
+    // categoriesMap es { 'Drikke': 'Drinks', 'Matretter': 'Food', ... }
+    var categoryKeys = Object.keys(categoriesMap);
 
     // Revisar items existentes
     var existingItems = menu.querySelectorAll('.lavvo-dropdown-item');
@@ -511,7 +501,7 @@
       }
 
       // Si la categoría pre-renderizada NO está en el CSV, eliminarla
-      if (!csvCategoriesSet[val]) {
+      if (!categoriesMap[val]) {
         item.remove();
       } else {
         existingCategories[val] = true;
@@ -519,18 +509,19 @@
     });
 
     // Añadir categorías del CSV que no existan
-    categoriesList.forEach(function(category) {
-      if (existingCategories[category]) {
+    categoryKeys.forEach(function(categoryNo) {
+      if (existingCategories[categoryNo]) {
         // Ya existe
         return;
       }
 
-      var translated = categoryTranslations[category] || category;
+      var categoryEn = categoriesMap[categoryNo];
+      var displayText = lang === 'en' ? categoryEn : categoryNo;
 
       var item = document.createElement('div');
       item.className = 'lavvo-dropdown-item';
-      item.setAttribute('data-value', category);
-      item.textContent = translated;
+      item.setAttribute('data-value', categoryNo); // Siempre usar el valor NO para filtrado
+      item.textContent = displayText;
 
       // Añadir evento click
       item.addEventListener('click', function() {
