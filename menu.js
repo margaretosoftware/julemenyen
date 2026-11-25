@@ -794,11 +794,19 @@
   }
 
   // ---------- Loading state ----------
-  // The page carries a pre-rendered copy of the menu (for search engines and for
-  // when the sheet cannot be read). It may be older than the sheet, so visitors
-  // never see it while the sheet is on its way: it is hidden until the fresh menu
-  // is in place, or until LOADING_MAX_MS has passed or the request has failed.
+  // The page carries a pre-rendered copy of the menu, for search engines. It may be
+  // last year's, with last year's allergens, so it is hidden until a menu is in
+  // place: the sheet's, or menu-fallback.csv (a copy of the sheet kept next to this
+  // script) when the sheet fails or takes longer than LOADING_MAX_MS.
   var LOADING_MAX_MS = 5000;
+
+  // Read while the script runs: document.currentScript is null later
+  var FALLBACK_CSV_URL = (function () {
+    var src = document.currentScript && document.currentScript.src;
+    return src && /\/menu\.js/.test(src)
+      ? src.replace(/menu\.js.*$/, "menu-fallback.csv")
+      : "https://cdn.jsdelivr.net/gh/margaretosoftware/julemenyen@main/menu-fallback.csv";
+  })();
 
   function addLoadingStyle() {
     var style = document.createElement("style");
@@ -824,8 +832,20 @@
     }
   }
 
-  function stopLoadingAll() {
-    document.querySelectorAll(".lavvo-menu-root").forEach(stopLoading);
+  // No menu could be read at all: say so instead of showing an old one
+  function showUnavailable() {
+    document.querySelectorAll(".lavvo-menu-root.lavvo-loading").forEach(function (root) {
+      var lang = (root.getAttribute("data-lang") || "no").toLowerCase();
+      var status = root.querySelector(".lavvo-status");
+      var dynamic = root.querySelector(".lavvo-menu-dynamic");
+      if (dynamic) dynamic.innerHTML = "";
+      if (status) {
+        status.textContent =
+          lang === "en"
+            ? "The menu could not be loaded. Please try again."
+            : "Menyen kunne ikke lastes. Prøv igjen.";
+      }
+    });
   }
 
   // ---------- Render global ----------
@@ -860,17 +880,44 @@
   function init() {
     addLoadingStyle();
     document.querySelectorAll(".lavvo-menu-root").forEach(startLoading);
-    setTimeout(stopLoadingAll, LOADING_MAX_MS);
 
-    fetchCSV(CSV_URL)
-      .then(function (rows) {
+    function load(url) {
+      return fetchCSV(url).then(function (rows) {
         var groups = normalizeRows(rows);
-        if (!groups.length) throw new Error("the sheet has no available items");
+        if (!groups.length) throw new Error("no available items in " + url);
+        return groups;
+      });
+    }
+
+    var sheetShown = false;
+    var fallback = null;
+    function useFallback() {
+      if (!fallback) {
+        fallback = load(FALLBACK_CSV_URL).then(function (groups) {
+          // The sheet wins if it arrived in the meantime
+          if (!sheetShown) renderAll(groups);
+        });
+      }
+      return fallback;
+    }
+
+    var timer = setTimeout(function () {
+      useFallback().catch(function () {});
+    }, LOADING_MAX_MS);
+
+    load(CSV_URL)
+      .then(function (groups) {
+        clearTimeout(timer);
+        sheetShown = true;
         renderAll(groups);
       })
       .catch(function (err) {
+        clearTimeout(timer);
         console.error("Error loading menu:", err);
-        stopLoadingAll();
+        useFallback().catch(function (e) {
+          console.error("Error loading the menu copy:", e);
+          showUnavailable();
+        });
       });
   }
 
