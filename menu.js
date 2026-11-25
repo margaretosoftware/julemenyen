@@ -96,6 +96,7 @@
   function fetchCSV(url) {
     return fetch(url, { cache: "no-store" })
       .then(function (res) {
+        if (!res.ok) throw new Error("sheet answered " + res.status);
         return res.text();
       })
       .then(function (text) {
@@ -792,35 +793,39 @@
     applyFilters(root);
   }
 
-  // ---------- Mensaje de estado con tres fases ----------
-  function updateStatus(root, lang, phase) {
-    var status = root.querySelector(".lavvo-status");
-    if (!status) return null;
+  // ---------- Loading state ----------
+  // The page carries a pre-rendered copy of the menu (for search engines and for
+  // when the sheet cannot be read). It may be older than the sheet, so visitors
+  // never see it while the sheet is on its way: it is hidden until the fresh menu
+  // is in place, or until LOADING_MAX_MS has passed or the request has failed.
+  var LOADING_MAX_MS = 5000;
 
-    // Textos según fase y idioma
-    var texts = {
-      checking: lang === "en" ? "Checking for changes..." : "Sjekker om det er endringer...",
-      updating: lang === "en" ? "Updating menu..." : "Oppdaterer meny...",
-      updated: lang === "en" ? "Menu updated!" : "Meny oppdatert!"
-    };
-
-    status.textContent = texts[phase];
-    status.style.opacity = "0.8"; // Asegurar que sea visible
-    return status;
+  function addLoadingStyle() {
+    var style = document.createElement("style");
+    style.textContent =
+      ".lavvo-menu-root.lavvo-loading .lavvo-menu-dynamic{visibility:hidden;max-height:60vh;overflow:hidden}";
+    document.head.appendChild(style);
   }
 
-  function hideStatusWithFade(status) {
-    if (!status) return;
+  function startLoading(root) {
+    var lang = (root.getAttribute("data-lang") || "no").toLowerCase();
+    var status = root.querySelector(".lavvo-status");
+    root.classList.add("lavvo-loading");
+    if (status) {
+      status.textContent = lang === "en" ? "Loading the menu..." : "Laster menyen...";
+    }
+  }
 
-    // Solo hacer invisible, no eliminar (para evitar reflow)
-    status.style.opacity = "0";
+  function stopLoading(root) {
+    var status = root.querySelector(".lavvo-status");
+    root.classList.remove("lavvo-loading");
+    if (status) {
+      status.style.display = "none";
+    }
+  }
 
-    // Después de la transición, vaciar el contenido pero mantener el espacio
-    setTimeout(function() {
-      if (status) {
-        status.textContent = "";
-      }
-    }, 300);
+  function stopLoadingAll() {
+    document.querySelectorAll(".lavvo-menu-root").forEach(stopLoading);
   }
 
   // ---------- Render global ----------
@@ -833,43 +838,11 @@
       var dynamic = root.querySelector(".lavvo-menu-dynamic");
       if (!dynamic) return;
 
-      // El mensaje "checking" ya está pre-renderizado en el HTML
-      var statusMsg = root.querySelector(".lavvo-status");
-
       var newSnapshot = buildSnapshotFromGroups(groups, lang);
-      var domSnapshot = null;
-
-      if (dynamic.querySelector(".lavvo-photo-card") || dynamic.querySelector(".lavvo-text-item")) {
-        domSnapshot = buildSnapshotFromDOM(dynamic, lang);
+      if (buildSnapshotFromDOM(dynamic, lang) !== newSnapshot) {
+        dynamic.innerHTML = buildMenuHTML(groups, lang);
       }
-
-      if (domSnapshot && domSnapshot === newSnapshot) {
-        // No hay cambios - ocultar mensaje después de 800ms
-        console.log("✅ Menu is already up to date (" + lang + ")");
-        setTimeout(function() {
-          hideStatusWithFade(statusMsg);
-        }, 800);
-      } else {
-        // Hay cambios - mostrar flujo completo
-        console.log("🔄 Menu update detected (" + lang + ")");
-
-        setTimeout(function() {
-          // FASE 2: Cambiar a "Actualizando..."
-          updateStatus(root, lang, "updating");
-
-          setTimeout(function() {
-            var newHTML = buildMenuHTML(groups, lang);
-            dynamic.innerHTML = newHTML;
-
-            // FASE 3: Cambiar a "Actualizado!" y luego fade out
-            updateStatus(root, lang, "updated");
-
-            setTimeout(function() {
-              hideStatusWithFade(statusMsg);
-            }, 1500);
-          }, 600);
-        }, 800);
-      }
+      stopLoading(root);
 
       // SIEMPRE inicializar categorías y alérgenos (incluso si el menú no cambió)
       // Esto asegura que los filtros se llenen dinámicamente desde el CSV
@@ -885,22 +858,26 @@
 
   // ---------- Inicialización ----------
   function init() {
-    console.log("🚀 Lavvo menu script loading...");
+    addLoadingStyle();
+    document.querySelectorAll(".lavvo-menu-root").forEach(startLoading);
+    setTimeout(stopLoadingAll, LOADING_MAX_MS);
+
     fetchCSV(CSV_URL)
       .then(function (rows) {
-        console.log("📊 CSV data loaded:", rows.length, "rows");
         var groups = normalizeRows(rows);
+        if (!groups.length) throw new Error("the sheet has no available items");
         renderAll(groups);
       })
       .catch(function (err) {
-        console.error("❌ Error loading menu:", err);
+        console.error("Error loading menu:", err);
+        stopLoadingAll();
       });
   }
 
-  // Ejecutar cuando el DOM esté listo
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
+  // The script sits right after the menu in the page, so the menu is already there
+  if (document.querySelector(".lavvo-menu-root")) {
     init();
+  } else {
+    document.addEventListener("DOMContentLoaded", init);
   }
 })();
